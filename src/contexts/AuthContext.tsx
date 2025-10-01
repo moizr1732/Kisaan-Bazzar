@@ -55,9 +55,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       language: 'en',
       crops: [],
     });
-
-    // Fetch the just-created profile to ensure consistency
-    await getDoc(userDocRef);
+    
+    // The user profile will be fetched by the onAuthStateChanged listener
+    // ensuring consistency.
     
     return userCredential;
   };
