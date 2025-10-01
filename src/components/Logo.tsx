@@ -5,7 +5,7 @@ export function Logo() {
     <div className="flex items-center justify-center gap-2">
       <Leaf className="h-8 w-8 text-primary" />
       <span className="text-2xl font-bold font-headline text-foreground">
-        AgriMitra
+        Kisaan Bazaar
       </span>
     </div>
   );

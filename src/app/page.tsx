@@ -42,7 +42,7 @@ export default function HomePage() {
                         Your AI-Powered Farming Companion
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                        AgriMitra offers instant, voice-based crop diagnosis and expert advisories to help you protect your harvest.
+                        Kisaan Bazaar offers instant, voice-based crop diagnosis and expert advisories to help you protect your harvest.
                     </p>
                     </div>
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">

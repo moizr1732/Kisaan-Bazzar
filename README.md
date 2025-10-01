@@ -1,4 +1,4 @@
-# AgriMitra
+# Kisaan Bazaar
 
 This is a NextJS starter in Firebase Studio.
 
