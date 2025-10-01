@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,53 +24,52 @@ import { useAuth } from '@/hooks/useAuth';
 import { Logo } from "@/components/Logo";
 import placeholderImage from "@/lib/placeholder-images.json";
 
-const signupSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 });
 
-export default function SignupPage() {
-  const { user, loading, signup } = useAuth();
+export default function LoginPage() {
+  const { user, loading, login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const farmImage = placeholderImage.placeholderImages.find(p => p.id === 'farm-background');
 
-  const form = useForm<z.infer<typeof signupSchema>>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
-  
+
   useEffect(() => {
     if (!loading && user) {
       router.replace('/dashboard');
     }
   }, [user, loading, router]);
 
-
-  async function onSubmit(values: z.infer<typeof signupSchema>) {
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
     try {
-      await signup(values.email, values.password);
+      await login(values.email, values.password);
       toast({
-        title: "Account Created",
-        description: "You have successfully signed up!",
+        title: "Login Successful",
+        description: "Welcome back!",
       });
       router.push('/dashboard');
     } catch (error: any) {
-        const errorCode = error.code;
-        let errorMessage = "An unexpected error occurred.";
-        if (errorCode === 'auth/email-already-in-use') {
-            errorMessage = "This email is already registered. Please login instead.";
-        }
-        toast({
-            variant: "destructive",
-            title: "Sign-up Failed",
-            description: errorMessage,
-        });
+      const errorCode = error.code;
+      let errorMessage = "An unexpected error occurred.";
+      if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
+          errorMessage = "Invalid email or password. Please try again.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: errorMessage,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -86,13 +85,13 @@ export default function SignupPage() {
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
-       <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
             <Logo />
-            <h1 className="text-3xl font-bold font-headline mt-4">Create an Account</h1>
+            <h1 className="text-3xl font-bold font-headline mt-4">Welcome Back</h1>
             <p className="text-balance text-muted-foreground">
-              Enter your email and password to get started
+              Enter your email below to login to your account
             </p>
           </div>
           <Form {...form}>
@@ -125,14 +124,14 @@ export default function SignupPage() {
               />
               <Button type="submit" className="w-full font-bold" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign Up
+                Login
               </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
-            <Link href="/login" className="underline font-semibold text-primary">
-              Login
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="underline font-semibold text-primary">
+              Sign up
             </Link>
           </div>
         </div>
