@@ -1,17 +1,17 @@
-import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
+// This is a public configuration and is safe to be exposed in the client-side code.
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  apiKey: "AIzaSyCOchAhYDrFnISXJT3aNfL-dAnRq1qXL3M",
   authDomain: "studio-4185006276-c9a8a.firebaseapp.com",
   projectId: "studio-4185006276-c9a8a",
   storageBucket: "studio-4185006276-c9a8a.appspot.com",
   messagingSenderId: "818248571629",
   appId: "1:818248571629:web:e00b85d0ae4031ee578ae4"
 };
-
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
