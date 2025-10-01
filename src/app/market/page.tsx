@@ -55,15 +55,15 @@ function MarketContent() {
            <h1 className="text-xl font-bold font-headline text-foreground">Kisan Bazaar</h1>
          </div>
          <nav className="flex flex-col p-4 space-y-1">
-           {navItems.map(({ href, label, Icon }) => (
+           {navItems.map((item) => (
              <Button
-               key={href}
-               variant={href === '/market' ? "secondary" : "ghost"}
+               key={item.href}
+               variant={item.href === '/market' ? "secondary" : "ghost"}
                className="justify-start gap-2"
-               onClick={() => router.push(href)}
+               onClick={() => router.push(item.href)}
              >
-               <Icon className="h-5 w-5" />
-               {label}
+               <item.Icon className="h-5 w-5" />
+               {item.label}
              </Button>
            ))}
          </nav>
@@ -91,18 +91,18 @@ function MarketContent() {
                            <Button variant="ghost" size="icon" onClick={() => setIsSheetOpen(false)}><X/></Button>
                         </div>
                         <nav className="flex flex-col p-4 space-y-1">
-                           {navItems.map(({ href, label, Icon }) => (
+                           {navItems.map((item) => (
                              <Button
-                               key={href}
-                               variant={href === '/market' ? "secondary" : "ghost"}
+                               key={item.href}
+                               variant={item.href === '/market' ? "secondary" : "ghost"}
                                className="justify-start gap-2"
                                onClick={() => {
-                                 router.push(href);
+                                 router.push(item.href);
                                  setIsSheetOpen(false);
                                }}
                              >
-                               <Icon className="h-5 w-5" />
-                               {label}
+                               <item.Icon className="h-5 w-5" />
+                               {item.label}
                              </Button>
                            ))}
                         </nav>
@@ -330,7 +330,5 @@ function MarketContent() {
 export default function MarketPage() {
     return <MarketContent />
 }
-
-    
 
     
