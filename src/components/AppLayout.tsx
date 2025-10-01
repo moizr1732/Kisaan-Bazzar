@@ -1,3 +1,4 @@
+
 "use client"
 
 import React from 'react';
@@ -13,7 +14,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, History, User, LogOut, PanelLeft, ShoppingCart, Bell, Home, BotMessageSquare, Leaf, BarChart3, UserCircle } from 'lucide-react';
+import { LayoutDashboard, History, User, LogOut, PanelLeft, ShoppingCart, Bell, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, LineChart } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -50,7 +51,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
     { href: '/history', label: 'Advisory History', icon: History },
-    { href: '/market', label: 'Market Prices', icon: ShoppingCart },
+    { href: '/market', label: 'Market Rates', icon: LineChart },
     { href: '/profile', label: 'My Profile', icon: User },
   ];
 
@@ -59,6 +60,11 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     if (email) return email.charAt(0).toUpperCase();
     return 'A';
   }
+
+  // A simple check for root pages that have their own layout (like /market)
+  const isCustomLayoutPage = pathname === '/market';
+  const mainContent = isCustomLayoutPage ? children : <main className="flex-1 p-4 sm:p-6">{children}</main>;
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -86,29 +92,36 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
            </Button>
          </div>
        </aside>
-       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64">
-        <header className="sticky top-0 z-30 hidden h-14 items-center gap-4 border-b bg-white px-6 sm:flex">
-            <div className="flex-1">
-             {/* Can add search bar here if needed */}
-            </div>
-             <div className="relative">
-                <Button variant="ghost" size="icon">
-                    <Bell className="h-5 w-5" />
-                </Button>
-                <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0" variant="destructive">3</Badge>
-             </div>
-            <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                    <AvatarImage src={avatarImage?.imageUrl} />
-                    <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>
-            </div>
-        </header>
-         <main className="flex-1">{children}</main>
+       <div className="flex flex-col sm:pl-60">
+        
+        {/* Hide default header on pages with custom headers */}
+        {!isCustomLayoutPage && (
+            <header className="sticky top-0 z-30 hidden h-14 items-center gap-4 border-b bg-white px-6 sm:flex">
+                <div className="flex-1">
+                {/* Can add search bar here if needed */}
+                </div>
+                <div className="relative">
+                    <Button variant="ghost" size="icon">
+                        <Bell className="h-5 w-5" />
+                    </Button>
+                    <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0" variant="destructive">3</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={avatarImage?.imageUrl} />
+                        <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>
+                </div>
+            </header>
+        )}
+        
+         {mainContent}
        </div>
      </div>
   );
 };
 
 export default AppLayout;
+
+    
