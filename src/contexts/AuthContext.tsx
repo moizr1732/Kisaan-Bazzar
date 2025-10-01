@@ -44,8 +44,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signup = async (email: string, pass: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const newUser = userCredential.user;
+    const userDocRef = doc(db, "users", newUser.uid);
+
     // Create user profile in Firestore
-    await setDoc(doc(db, "users", newUser.uid), {
+    await setDoc(userDocRef, {
       uid: newUser.uid,
       email: newUser.email,
       name: '',
@@ -53,6 +55,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       language: 'en',
       crops: [],
     });
+
+    // Fetch the just-created profile to ensure consistency
+    await getDoc(userDocRef);
+    
     return userCredential;
   };
 

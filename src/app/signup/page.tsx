@@ -67,6 +67,8 @@ export default function SignupPage() {
             errorMessage = "This email is already registered. Please login instead.";
         } else if (errorCode === 'auth/invalid-email') {
             errorMessage = "Please enter a valid email address.";
+        } else if (errorCode === 'auth/weak-password') {
+            errorMessage = "The password is too weak. Please choose a stronger password.";
         }
         toast({
             variant: "destructive",
