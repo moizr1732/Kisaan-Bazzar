@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,45 +24,46 @@ import { useAuth } from '@/hooks/useAuth';
 import { Logo } from "@/components/Logo";
 import placeholderImage from "@/lib/placeholder-images.json";
 
-const loginSchema = z.object({
+const signupSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 });
 
-export default function LoginPage() {
-  const { user, loading, login } = useAuth();
+export default function SignupPage() {
+  const { user, loading, signup } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const farmImage = placeholderImage.placeholderImages.find(p => p.id === 'farm-background');
 
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
-
+  
   useEffect(() => {
     if (!loading && user) {
       router.replace('/dashboard');
     }
   }, [user, loading, router]);
 
-  async function onSubmit(values: z.infer<typeof loginSchema>) {
+
+  async function onSubmit(values: z.infer<typeof signupSchema>) {
     setIsSubmitting(true);
     try {
-      await login(values.email, values.password);
+      await signup(values.email, values.password);
       toast({
-        title: "Login Successful",
-        description: "Welcome back!",
+        title: "Account Created",
+        description: "You have successfully signed up!",
       });
       router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Login Failed",
+        title: "Sign-up Failed",
         description: error.message || "An unexpected error occurred.",
       });
     } finally {
@@ -80,13 +81,13 @@ export default function LoginPage() {
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
-      <div className="flex items-center justify-center py-12">
+       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
             <Logo />
-            <h1 className="text-3xl font-bold font-headline mt-4">Welcome Back</h1>
+            <h1 className="text-3xl font-bold font-headline mt-4">Create an Account</h1>
             <p className="text-balance text-muted-foreground">
-              Enter your email below to login to your account
+              Enter your email and password to get started
             </p>
           </div>
           <Form {...form}>
@@ -119,14 +120,14 @@ export default function LoginPage() {
               />
               <Button type="submit" className="w-full font-bold" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Login
+                Sign Up
               </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline font-semibold text-primary">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/" className="underline font-semibold text-primary">
+              Login
             </Link>
           </div>
         </div>
