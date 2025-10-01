@@ -132,7 +132,7 @@ function ProfileContent() {
      <div className="bg-background min-h-screen">
       <header className="flex items-center justify-between p-4 bg-primary text-primary-foreground shadow-sm">
         <h1 className="text-xl font-bold">Farmer Profile</h1>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={() => router.push('/settings')}>
           <Settings />
         </Button>
       </header>
