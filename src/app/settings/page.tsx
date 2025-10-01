@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -11,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, ChevronRight, HelpCircle, Headset, Star, Home, BotMessageSquare, Leaf, BarChart3, UserCircle } from "lucide-react";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 
-function SettingsContent() {
+export default function SettingsPage() {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [notificationSettings, setNotificationSettings] = useState({
@@ -173,8 +172,4 @@ function SettingsContent() {
             <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={() => {}} />
         </div>
     );
-}
-
-export default function SettingsPage() {
-    return <SettingsContent />;
 }
