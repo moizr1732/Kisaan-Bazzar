@@ -62,10 +62,24 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (error: any) {
       const errorCode = error.code;
-      let errorMessage = error.message || "An unexpected error occurred.";
-      if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
-          errorMessage = "Invalid email or password. Please try again.";
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      switch (errorCode) {
+        case 'auth/user-not-found':
+        case 'auth/invalid-email':
+          errorMessage = "No account found with this email address.";
+          break;
+        case 'auth/wrong-password':
+          errorMessage = "Incorrect password. Please try again.";
+          break;
+        case 'auth/invalid-credential':
+           errorMessage = "Invalid credentials. Please check your email and password.";
+           break;
+        default:
+          errorMessage = "An unexpected error occurred during login.";
+          break;
       }
+
       toast({
         variant: "destructive",
         title: "Login Failed",
