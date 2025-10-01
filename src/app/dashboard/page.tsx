@@ -33,10 +33,8 @@ import type { Advisory } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
-import AuthGuard from "@/components/AuthGuard";
 
-
-function DashboardContent() {
+export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, userProfile } = useAuth();
   const router = useRouter();
@@ -277,13 +275,5 @@ function DashboardContent() {
 
       <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={onAdvisoryCreated} />
     </div>
-  );
-}
-
-export default function DashboardPage() {
-  return (
-    <AuthGuard>
-      <DashboardContent />
-    </AuthGuard>
   );
 }

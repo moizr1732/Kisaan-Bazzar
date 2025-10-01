@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import AuthGuard from "@/components/AuthGuard";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -76,10 +75,8 @@ function HistoryContent() {
 
 export default function HistoryPage() {
   return (
-    <AuthGuard>
       <AppLayout>
         <HistoryContent />
       </AppLayout>
-    </AuthGuard>
   );
 }

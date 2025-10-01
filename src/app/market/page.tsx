@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
-import AuthGuard from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -259,13 +258,8 @@ function MarketContent() {
 
 export default function MarketPage() {
     return (
-        <AuthGuard>
-            {/* Using AppLayout for desktop sidebar, but content is custom */}
-            <AppLayout>
-                <MarketContent />
-            </AppLayout>
-        </AuthGuard>
+        <AppLayout>
+            <MarketContent />
+        </AppLayout>
     )
 }
-
-    

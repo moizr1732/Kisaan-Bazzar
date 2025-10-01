@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AuthGuard from "@/components/AuthGuard";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -169,10 +168,8 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <AuthGuard>
       <AppLayout>
         <ProfileContent />
       </AppLayout>
-    </AuthGuard>
   );
 }
