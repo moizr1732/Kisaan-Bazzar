@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -28,7 +29,7 @@ export default function SettingsPage() {
                 <h1 className="text-xl font-bold">Settings</h1>
             </header>
 
-            <main className="p-4 space-y-6 max-w-2xl mx-auto">
+            <main className="p-4 space-y-6 max-w-2xl mx-auto pb-20">
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base font-semibold">Language & Region</CardTitle>
@@ -166,8 +167,6 @@ export default function SettingsPage() {
                     <span className="text-xs">Profile</span>
                 </Button>
             </nav>
-
-            <div className="h-16 md:hidden" />
 
             <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={() => {}} />
         </div>
