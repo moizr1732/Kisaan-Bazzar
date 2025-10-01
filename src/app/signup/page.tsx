@@ -57,19 +57,28 @@ export default function SignupPage() {
       await signup(values.email, values.password);
       toast({
         title: "Account Created",
-        description: "You have successfully signed up!",
+        description: "Welcome! Redirecting you to the dashboard.",
       });
-      router.push('/dashboard');
+      // The onAuthStateChanged listener in AuthContext will handle the redirect.
     } catch (error: any) {
         const errorCode = error.code;
         let errorMessage = "An unexpected error occurred. Please try again.";
-        if (errorCode === 'auth/email-already-in-use') {
-            errorMessage = "This email is already registered. Please login instead.";
-        } else if (errorCode === 'auth/invalid-email') {
-            errorMessage = "Please enter a valid email address.";
-        } else if (errorCode === 'auth/weak-password') {
-            errorMessage = "The password is too weak. Please choose a stronger password.";
+        
+        switch (errorCode) {
+            case 'auth/email-already-in-use':
+                errorMessage = "This email is already registered. Please login instead.";
+                break;
+            case 'auth/invalid-email':
+                errorMessage = "Please enter a valid email address.";
+                break;
+            case 'auth/weak-password':
+                errorMessage = "The password is too weak. Please choose a stronger password.";
+                break;
+            default:
+                 console.error("Sign-up error:", error); // Log the full error for debugging
+                 break;
         }
+
         toast({
             variant: "destructive",
             title: "Sign-up Failed",

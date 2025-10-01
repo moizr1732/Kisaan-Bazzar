@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { User, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { UserProfile } from '@/lib/types';
 
@@ -25,10 +25,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
       if (user) {
-        await fetchUserProfile(user);
+        setUser(user);
+        await fetchUserProfile(user, true); // Check and create profile if missing
       } else {
+        setUser(null);
         setUserProfile(null);
       }
       setLoading(false);
@@ -41,36 +42,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return signInWithEmailAndPassword(auth, email, pass);
   };
 
-  const signup = async (email: string, pass: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const newUser = userCredential.user;
-    const userDocRef = doc(db, "users", newUser.uid);
-
-    // Create user profile in Firestore
-    await setDoc(userDocRef, {
-      uid: newUser.uid,
-      email: newUser.email,
-      name: '',
-      location: '',
-      language: 'en',
-      crops: [],
-    });
-    
-    // The user profile will be fetched by the onAuthStateChanged listener
-    // ensuring consistency.
-    
-    return userCredential;
+  const signup = (email: string, pass: string) => {
+    // This function will now only create the auth user.
+    // The onAuthStateChanged listener will handle profile creation.
+    return createUserWithEmailAndPassword(auth, email, pass);
   };
 
   const logout = () => {
     return signOut(auth);
   };
 
-  const fetchUserProfile = async (user: User) => {
+  const fetchUserProfile = async (user: User, createIfMissing = false) => {
     const docRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(docRef);
+
     if (docSnap.exists()) {
       setUserProfile(docSnap.data() as UserProfile);
+    } else if (createIfMissing) {
+      // If the user profile doesn't exist, create it.
+      const newProfile: UserProfile = {
+        uid: user.uid,
+        email: user.email!,
+        name: '',
+        location: '',
+        language: 'en',
+        crops: [],
+      };
+      await setDoc(docRef, newProfile);
+      setUserProfile(newProfile);
     }
   };
 
