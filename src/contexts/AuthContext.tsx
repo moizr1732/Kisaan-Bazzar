@@ -78,5 +78,5 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     fetchUserProfile
   };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

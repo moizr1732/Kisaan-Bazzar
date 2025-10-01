@@ -62,9 +62,11 @@ export default function SignupPage() {
       router.push('/dashboard');
     } catch (error: any) {
         const errorCode = error.code;
-        let errorMessage = error.message || "An unexpected error occurred.";
+        let errorMessage = "An unexpected error occurred. Please try again.";
         if (errorCode === 'auth/email-already-in-use') {
             errorMessage = "This email is already registered. Please login instead.";
+        } else if (errorCode === 'auth/invalid-email') {
+            errorMessage = "Please enter a valid email address.";
         }
         toast({
             variant: "destructive",
