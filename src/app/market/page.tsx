@@ -10,6 +10,8 @@ import { Bell, Search, Clock, MapPin, ArrowUp, ArrowDown, HelpCircle, Minus, Tre
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Logo } from "@/components/Logo";
+import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 
 const overviewData = [
   { title: "High Demand", value: "12", unit: "Crops", color: "text-green-600 bg-green-50 border-green-200", icon: HelpCircle },
@@ -52,20 +54,22 @@ function MarketContent() {
       {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-white sm:flex">
          <div className="flex h-16 items-center border-b px-6">
-           <h1 className="text-xl font-bold font-headline text-foreground">Kisan Bazaar</h1>
+           <Logo/>
          </div>
          <nav className="flex flex-col p-4 space-y-1">
-           {navItems.map((item) => (
-             <Button
-               key={item.href}
-               variant={item.href === '/market' ? "secondary" : "ghost"}
-               className="justify-start gap-2"
-               onClick={() => router.push(item.href)}
-             >
-               <item.Icon className="h-5 w-5" />
-               {item.label}
-             </Button>
-           ))}
+           {navItems.map((item) => {
+             const Icon = item.Icon;
+             return (
+              <Button
+                key={item.href}
+                variant={item.href === '/market' ? "secondary" : "ghost"}
+                className="justify-start gap-2"
+                onClick={() => router.push(item.href)}
+              >
+                <Icon className="h-5 w-5" />
+                {item.label}
+              </Button>
+            )})}
          </nav>
          <div className="mt-auto p-4 border-t">
            <Button variant="ghost" className="w-full justify-start gap-2" onClick={logout}>
@@ -77,7 +81,7 @@ function MarketContent() {
       
       <div className="flex flex-col w-full sm:pl-60">
         {/* Mobile Header */}
-        <header className="flex items-center justify-between p-4 bg-white shadow-sm md:hidden">
+        <header className="flex items-center justify-between p-4 bg-white shadow-sm sm:hidden">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -87,11 +91,13 @@ function MarketContent() {
                 <SheetContent side="left" className="p-0 w-64">
                     <aside className="flex h-full w-full flex-col border-r bg-white">
                         <div className="flex h-16 items-center justify-between border-b px-6">
-                           <h1 className="text-xl font-bold font-headline text-foreground">Kisan Bazaar</h1>
+                           <Logo />
                            <Button variant="ghost" size="icon" onClick={() => setIsSheetOpen(false)}><X/></Button>
                         </div>
                         <nav className="flex flex-col p-4 space-y-1">
-                           {navItems.map((item) => (
+                           {navItems.map((item) => {
+                             const Icon = item.Icon;
+                             return (
                              <Button
                                key={item.href}
                                variant={item.href === '/market' ? "secondary" : "ghost"}
@@ -101,10 +107,10 @@ function MarketContent() {
                                  setIsSheetOpen(false);
                                }}
                              >
-                               <item.Icon className="h-5 w-5" />
+                               <Icon className="h-5 w-5" />
                                {item.label}
                              </Button>
-                           ))}
+                           )})}
                         </nav>
                         <div className="mt-auto p-4 border-t">
                            <Button variant="ghost" className="w-full justify-start gap-2" onClick={logout}>
@@ -115,10 +121,7 @@ function MarketContent() {
                     </aside>
                 </SheetContent>
             </Sheet>
-            <div>
-                <h1 className="text-xl font-bold font-headline text-foreground">Market</h1>
-                <p className="text-sm text-muted-foreground">Wholesale Rates</p>
-            </div>
+            <Logo size="sm" />
             <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon">
                     <Search className="text-gray-600" />
@@ -130,7 +133,7 @@ function MarketContent() {
         </header>
 
         {/* Desktop Header */}
-        <header className="hidden md:flex items-center justify-between p-4 bg-white border-b">
+        <header className="hidden sm:flex items-center justify-between p-4 bg-white border-b">
            <div className="flex items-center gap-4">
                <h1 className="text-2xl font-bold font-headline">Market Rates</h1>
            </div>
@@ -156,16 +159,19 @@ function MarketContent() {
               </div>
             </CardHeader>
             <CardContent className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {overviewData.map(item => (
-                <div key={item.title} className={`p-3 rounded-lg border flex items-center justify-between ${item.color}`}>
-                  <div>
-                    <p className="text-sm font-semibold">{item.title}</p>
-                    <p className="text-2xl font-bold">{item.value}</p>
-                    <p className="text-xs">{item.unit}</p>
+              {overviewData.map(item => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className={`p-3 rounded-lg border flex items-center justify-between ${item.color}`}>
+                    <div>
+                      <p className="text-sm font-semibold">{item.title}</p>
+                      <p className="text-2xl font-bold">{item.value}</p>
+                      <p className="text-xs">{item.unit}</p>
+                    </div>
+                    <Icon className="w-6 h-6 opacity-70" />
                   </div>
-                  <item.icon className="w-6 h-6 opacity-70" />
-                </div>
-              ))}
+                )
+              })}
             </CardContent>
           </Card>
 
@@ -281,16 +287,18 @@ function MarketContent() {
                   <CardTitle className="text-lg">Market Alerts & News</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                  {alertsData.map((alert, index) => (
+                  {alertsData.map((alert, index) => {
+                      const Icon = alert.icon;
+                      return (
                       <div key={index} className={`p-4 rounded-lg flex items-start gap-4 ${alert.color}`}>
-                          <alert.icon className="w-5 h-5 mt-1 flex-shrink-0" />
+                          <Icon className="w-5 h-5 mt-1 flex-shrink-0" />
                           <div>
                               <p className="font-bold">{alert.title}</p>
                               <p className="text-sm">{alert.message}</p>
                               <p className="text-xs opacity-80 mt-1">{alert.time}</p>
                           </div>
                       </div>
-                  ))}
+                  )})}
               </CardContent>
           </Card>
 
@@ -322,6 +330,7 @@ function MarketContent() {
 
         {/* Spacer for bottom nav */}
         <div className="h-16 md:hidden" />
+        <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={() => {}} />
       </div>
     </div>
   );
