@@ -7,9 +7,9 @@ const firebaseConfig = {
   apiKey: "AIzaSyCOchAhYDrFnISXJT3aNfL-dAnRq1qXL3M",
   authDomain: "studio-4185006276-c9a8a.firebaseapp.com",
   projectId: "studio-4185006276-c9a8a",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "your-storage-bucket",
+  storageBucket: "studio-4185006276-c9a8a.appspot.com",
   messagingSenderId: "818248571629",
-  appId: "1:818248571629:web:e00b85d0ae4031ee578ae4",
+  appId: "1:818248571629:web:e00b85d0ae4031ee578ae4"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
