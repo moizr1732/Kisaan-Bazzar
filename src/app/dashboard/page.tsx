@@ -33,6 +33,8 @@ import type { Advisory } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
+import AuthGuard from "@/components/AuthGuard";
+
 
 function DashboardContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -280,6 +282,8 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
+    <AuthGuard>
       <DashboardContent />
+    </AuthGuard>
   );
 }

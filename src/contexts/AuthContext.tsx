@@ -58,8 +58,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return signInWithEmailAndPassword(auth, email, pass);
   };
 
-  const signup = (email: string, pass: string) => {
-    return createUserWithEmailAndPassword(auth, email, pass);
+  const signup = async (email: string, pass: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    // The onAuthStateChanged listener will handle profile creation.
+    return userCredential;
   };
 
   const logout = () => {
