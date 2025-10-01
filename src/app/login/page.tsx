@@ -61,7 +61,7 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (error: any) {
       const errorCode = error.code;
-      let errorMessage = "An unexpected error occurred.";
+      let errorMessage = error.message || "An unexpected error occurred.";
       if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
           errorMessage = "Invalid email or password. Please try again.";
       }
