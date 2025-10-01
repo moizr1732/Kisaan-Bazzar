@@ -29,7 +29,7 @@ function SettingsContent() {
                 <h1 className="text-xl font-bold">Settings</h1>
             </header>
 
-            <main className="p-4 space-y-6">
+            <main className="p-4 space-y-6 max-w-2xl mx-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base font-semibold">Language & Region</CardTitle>
@@ -73,6 +73,7 @@ function SettingsContent() {
                                 <p className="text-xs text-muted-foreground">Get notified about weather changes</p>
                             </div>
                             <Switch
+                                id="weather-alerts"
                                 checked={notificationSettings.weather}
                                 onCheckedChange={(checked) => setNotificationSettings(s => ({ ...s, weather: checked }))}
                             />
@@ -83,6 +84,7 @@ function SettingsContent() {
                                 <p className="text-xs text-muted-foreground">Wholesale rate changes</p>
                             </div>
                              <Switch
+                                id="market-updates"
                                 checked={notificationSettings.market}
                                 onCheckedChange={(checked) => setNotificationSettings(s => ({ ...s, market: checked }))}
                             />
@@ -93,6 +95,7 @@ function SettingsContent() {
                                 <p className="text-xs text-muted-foreground">Crop disease outbreak warnings</p>
                             </div>
                              <Switch
+                                id="disease-alerts"
                                 checked={notificationSettings.disease}
                                 onCheckedChange={(checked) => setNotificationSettings(s => ({ ...s, disease: checked }))}
                             />
@@ -116,7 +119,7 @@ function SettingsContent() {
                  <Card>
                     <CardHeader>
                         <CardTitle className="text-base font-semibold">Help & Support</CardTitle>
-                    </CardHeader>
+                    </Header>
                     <CardContent className="space-y-1">
                         <Button variant="ghost" className="w-full justify-between"><span className="flex items-center gap-2"><HelpCircle /> FAQs</span> <ChevronRight /></Button>
                          <Separator />
