@@ -41,10 +41,10 @@ function MarketContent() {
   const { logout } = useAuth();
   
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: Home },
-    { href: '/history', label: 'Advisory History', icon: History },
-    { href: '/market', label: 'Market Rates', icon: LineChart },
-    { href: '/profile', label: 'My Profile', icon: User },
+    { href: '/dashboard', label: 'Dashboard', Icon: Home },
+    { href: '/history', label: 'Advisory History', Icon: History },
+    { href: '/market', label: 'Market Rates', Icon: LineChart },
+    { href: '/profile', label: 'My Profile', Icon: User },
   ];
 
   return (
@@ -55,15 +55,15 @@ function MarketContent() {
            <h1 className="text-xl font-bold font-headline text-foreground">Kisan Bazaar</h1>
          </div>
          <nav className="flex flex-col p-4 space-y-1">
-           {navItems.map(item => (
+           {navItems.map(({ href, label, Icon }) => (
              <Button
-               key={item.href}
-               variant={item.href === '/market' ? "secondary" : "ghost"}
+               key={href}
+               variant={href === '/market' ? "secondary" : "ghost"}
                className="justify-start gap-2"
-               onClick={() => router.push(item.href)}
+               onClick={() => router.push(href)}
              >
-               <item.icon className="h-5 w-5" />
-               {item.label}
+               <Icon className="h-5 w-5" />
+               {label}
              </Button>
            ))}
          </nav>
@@ -91,18 +91,18 @@ function MarketContent() {
                            <Button variant="ghost" size="icon" onClick={() => setIsSheetOpen(false)}><X/></Button>
                         </div>
                         <nav className="flex flex-col p-4 space-y-1">
-                           {navItems.map(item => (
+                           {navItems.map(({ href, label, Icon }) => (
                              <Button
-                               key={item.href}
-                               variant={item.href === '/market' ? "secondary" : "ghost"}
+                               key={href}
+                               variant={href === '/market' ? "secondary" : "ghost"}
                                className="justify-start gap-2"
                                onClick={() => {
-                                 router.push(item.href);
+                                 router.push(href);
                                  setIsSheetOpen(false);
                                }}
                              >
-                               <item.icon className="h-5 w-5" />
-                               {item.label}
+                               <Icon className="h-5 w-5" />
+                               {label}
                              </Button>
                            ))}
                         </nav>
@@ -330,5 +330,7 @@ function MarketContent() {
 export default function MarketPage() {
     return <MarketContent />
 }
+
+    
 
     
