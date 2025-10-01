@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCOchAhYDrFnISXJT3aNfL-dAnRq1qXL3M",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "studio-4185006276-c9a8a.firebaseapp.com",
   projectId: "studio-4185006276-c9a8a",
   storageBucket: "studio-4185006276-c9a8a.appspot.com",
@@ -12,14 +12,8 @@ const firebaseConfig = {
   appId: "1:818248571629:web:e00b85d0ae4031ee578ae4"
 };
 
-// Initialize Firebase
-let app: FirebaseApp;
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
-}
 
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
