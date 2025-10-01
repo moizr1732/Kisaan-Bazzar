@@ -23,7 +23,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // This effect will be skipped on the homepage now, but will work on other pages
   useEffect(() => {
+    // A quick check to see if we're on the main page. If so, we'll use mock data.
+    if (window.location.pathname === '/') {
+       setUser({ uid: 'mock-user' } as User);
+       setUserProfile({
+         uid: 'mock-user',
+         email: 'farmer@kisan.com',
+         name: 'Ahmad Faisal',
+         location: 'Okara, Punjab',
+         language: 'pa',
+       });
+       setLoading(false);
+       return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {
@@ -44,8 +59,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signup = (email: string, pass: string) => {
-    // This function will now only create the auth user.
-    // The onAuthStateChanged listener will handle profile creation.
     return createUserWithEmailAndPassword(auth, email, pass);
   };
 
@@ -60,11 +73,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (docSnap.exists()) {
       setUserProfile(docSnap.data() as UserProfile);
     } else if (createIfMissing) {
-      // If the user profile doesn't exist, create it.
       const newProfile: UserProfile = {
         uid: user.uid,
         email: user.email!,
-        name: '',
+        name: user.displayName || 'New Farmer',
         location: '',
         language: 'en',
         crops: [],
