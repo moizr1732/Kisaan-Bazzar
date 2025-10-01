@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bell, Search, Clock, MapPin, ArrowUp, ArrowDown, HelpCircle, Minus, TrendingUp, AlertTriangle, Truck, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, LineChart, User, LogOut, Menu, X } from "lucide-react";
+import { Bell, Search, Clock, MapPin, ArrowUp, ArrowDown, HelpCircle, Minus, TrendingUp, AlertTriangle, Truck, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, LineChart, User, LogOut, Menu, X, History } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -57,16 +57,17 @@ function MarketContent() {
            <Logo/>
          </div>
          <nav className="flex flex-col p-4 space-y-1">
-           {navItems.map(({ href, label, Icon }) => {
+           {navItems.map((item) => {
+             const Icon = item.Icon;
              return (
               <Button
-                key={href}
-                variant={href === '/market' ? "secondary" : "ghost"}
+                key={item.href}
+                variant={item.href === '/market' ? "secondary" : "ghost"}
                 className="justify-start gap-2"
-                onClick={() => router.push(href)}
+                onClick={() => router.push(item.href)}
               >
                 <Icon className="h-5 w-5" />
-                {label}
+                {item.label}
               </Button>
             )})}
          </nav>
@@ -94,19 +95,20 @@ function MarketContent() {
                            <Button variant="ghost" size="icon" onClick={() => setIsSheetOpen(false)}><X/></Button>
                         </div>
                         <nav className="flex flex-col p-4 space-y-1">
-                           {navItems.map(({ href, label, Icon }) => {
+                           {navItems.map((item) => {
+                             const Icon = item.Icon;
                              return (
                              <Button
-                               key={href}
-                               variant={href === '/market' ? "secondary" : "ghost"}
+                               key={item.href}
+                               variant={item.href === '/market' ? "secondary" : "ghost"}
                                className="justify-start gap-2"
                                onClick={() => {
-                                 router.push(href);
+                                 router.push(item.href);
                                  setIsSheetOpen(false);
                                }}
                              >
                                <Icon className="h-5 w-5" />
-                               {label}
+                               {item.label}
                              </Button>
                            )})}
                         </nav>
@@ -339,3 +341,4 @@ export default function MarketPage() {
 }
 
     
+
