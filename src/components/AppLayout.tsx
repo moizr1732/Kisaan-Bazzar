@@ -50,8 +50,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     return 'A';
   }
 
-  // Market page has its own layout, so we render it directly.
-  if (pathname === '/market') {
+  // These pages have their own layout, so we render them directly.
+  if (pathname === '/market' || pathname === '/profile') {
     return <>{children}</>;
   }
 

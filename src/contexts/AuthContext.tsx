@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
@@ -34,6 +35,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
          name: 'Ahmad Faisal',
          location: 'Okara, Punjab',
          language: 'pa',
+         crops: ['Wheat', 'Rice'],
+         phoneNumber: '+923001234567',
+         farmSize: 25,
        });
        setLoading(false);
        return;
@@ -82,6 +86,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         location: '',
         language: 'en',
         crops: [],
+        phoneNumber: '',
+        farmSize: undefined,
       };
       await setDoc(docRef, newProfile);
       setUserProfile(newProfile);

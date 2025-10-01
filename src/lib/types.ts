@@ -5,6 +5,8 @@ export interface UserProfile {
   email: string;
   name?: string;
   location?: string;
+  phoneNumber?: string;
+  farmSize?: number;
   language?: 'en' | 'ur' | 'pa' | 'sd' | 'ps';
   crops?: string[];
 }
