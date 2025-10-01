@@ -2,19 +2,6 @@
 "use client"
 
 import React from 'react';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarInset,
-} from '@/components/ui/sidebar';
-import { LayoutDashboard, History, User, LogOut, PanelLeft, ShoppingCart, Bell, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, LineChart } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -23,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import placeholderImage from '@/lib/placeholder-images.json';
 import { Badge } from './ui/badge';
+import { Home, History, LineChart, User, LogOut, Bell } from 'lucide-react';
+
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -61,9 +50,10 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     return 'A';
   }
 
-  // A simple check for root pages that have their own layout (like /market)
-  const isCustomLayoutPage = pathname === '/market';
-  const mainContent = isCustomLayoutPage ? children : <main className="flex-1 p-4 sm:p-6">{children}</main>;
+  // Market page has its own layout, so we render it directly.
+  if (pathname === '/market') {
+    return <>{children}</>;
+  }
 
 
   return (
@@ -94,29 +84,26 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
        </aside>
        <div className="flex flex-col sm:pl-60">
         
-        {/* Hide default header on pages with custom headers */}
-        {!isCustomLayoutPage && (
-            <header className="sticky top-0 z-30 hidden h-14 items-center gap-4 border-b bg-white px-6 sm:flex">
-                <div className="flex-1">
-                {/* Can add search bar here if needed */}
-                </div>
-                <div className="relative">
-                    <Button variant="ghost" size="icon">
-                        <Bell className="h-5 w-5" />
-                    </Button>
-                    <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0" variant="destructive">3</Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={avatarImage?.imageUrl} />
-                        <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>
-                </div>
-            </header>
-        )}
+        <header className="sticky top-0 z-30 hidden h-14 items-center gap-4 border-b bg-white px-6 sm:flex">
+            <div className="flex-1">
+            {/* Can add search bar here if needed */}
+            </div>
+            <div className="relative">
+                <Button variant="ghost" size="icon">
+                    <Bell className="h-5 w-5" />
+                </Button>
+                <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0" variant="destructive">3</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarImage?.imageUrl} />
+                    <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>
+            </div>
+        </header>
         
-         {mainContent}
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
        </div>
      </div>
   );
