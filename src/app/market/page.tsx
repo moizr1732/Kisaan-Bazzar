@@ -35,6 +35,13 @@ const alertsData = [
     { title: "Transport Update", message: "New transport routes opened between Karachi and Interior Sindh mandis.", time: "1 day ago", icon: Truck, color: "text-blue-800 bg-blue-100" },
 ]
 
+const navItems = [
+    { href: '/dashboard', label: 'Dashboard', Icon: Home },
+    { href: '/history', label: 'Advisory History', Icon: History },
+    { href: '/market', label: 'Market Rates', Icon: LineChart },
+    { href: '/profile', label: 'My Profile', Icon: User },
+];
+
 
 function MarketContent() {
   const router = useRouter();
@@ -42,13 +49,6 @@ function MarketContent() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { logout } = useAuth();
   
-  const navItems = [
-    { href: '/dashboard', label: 'Dashboard', Icon: Home },
-    { href: '/history', label: 'Advisory History', Icon: History },
-    { href: '/market', label: 'Market Rates', Icon: LineChart },
-    { href: '/profile', label: 'My Profile', Icon: User },
-  ];
-
   return (
     <div className="bg-background min-h-screen flex">
       {/* Desktop Sidebar */}
@@ -57,17 +57,16 @@ function MarketContent() {
            <Logo/>
          </div>
          <nav className="flex flex-col p-4 space-y-1">
-           {navItems.map((item) => {
-             const Icon = item.Icon;
+           {navItems.map(({ href, label, Icon }) => {
              return (
               <Button
-                key={item.href}
-                variant={item.href === '/market' ? "secondary" : "ghost"}
+                key={href}
+                variant={href === '/market' ? "secondary" : "ghost"}
                 className="justify-start gap-2"
-                onClick={() => router.push(item.href)}
+                onClick={() => router.push(href)}
               >
                 <Icon className="h-5 w-5" />
-                {item.label}
+                {label}
               </Button>
             )})}
          </nav>
@@ -95,20 +94,19 @@ function MarketContent() {
                            <Button variant="ghost" size="icon" onClick={() => setIsSheetOpen(false)}><X/></Button>
                         </div>
                         <nav className="flex flex-col p-4 space-y-1">
-                           {navItems.map((item) => {
-                             const Icon = item.Icon;
+                           {navItems.map(({ href, label, Icon }) => {
                              return (
                              <Button
-                               key={item.href}
-                               variant={item.href === '/market' ? "secondary" : "ghost"}
+                               key={href}
+                               variant={href === '/market' ? "secondary" : "ghost"}
                                className="justify-start gap-2"
                                onClick={() => {
-                                 router.push(item.href);
+                                 router.push(href);
                                  setIsSheetOpen(false);
                                }}
                              >
                                <Icon className="h-5 w-5" />
-                               {item.label}
+                               {label}
                              </Button>
                            )})}
                         </nav>
