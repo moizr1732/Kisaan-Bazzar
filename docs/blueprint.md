@@ -1,4 +1,4 @@
-# **App Name**: AgriMitra
+# **App Name**: Kisaan Bazaar
 
 ## Core Features:
 

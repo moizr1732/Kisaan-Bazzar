@@ -1,22 +1,29 @@
-import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:299203630.
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
-// This is a public configuration and is safe to be exposed in the client-side code.
 const firebaseConfig = {
-  apiKey: "AIzaSyCOchAhYDrFnISXJT3aNfL-dAnRq1qXL3M",
-  authDomain: "studio-4185006276-c9a8a.firebaseapp.com",
-  projectId: "studio-4185006276-c9a8a",
-  storageBucket: "studio-4185006276-c9a8a.appspot.com",
-  messagingSenderId: "818248571629",
-  appId: "1:818248571629:web:e00b85d0ae4031ee578ae4"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app;
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
+
+const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-export { app, auth, db, storage };
+export { app, analytics, auth, db };
