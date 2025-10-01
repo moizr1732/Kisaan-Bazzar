@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AuthGuard from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,7 +44,10 @@ function DashboardContent() {
 
   useEffect(() => {
     async function fetchLatestAdvisory() {
-      if (!user) return;
+      if (!user) {
+        setLoadingAdvisory(false);
+        return;
+      };
       try {
         const q = query(
           collection(db, "advisories"),
@@ -197,7 +199,7 @@ function DashboardContent() {
                   <p className="font-bold text-blue-800">Cotton Crop</p>
                   <p className="text-sm text-blue-700">{latestAdvisory.diagnosis}</p>
                   <p className="text-xs text-blue-500 mt-1">
-                    {formatDistanceToNow(latestAdvisory.createdAt.toDate(), { addSuffix: true })}
+                    {latestAdvisory.createdAt ? formatDistanceToNow(latestAdvisory.createdAt.toDate(), { addSuffix: true }) : ''}
                   </p>
                 </div>
                 <Button variant="ghost" size="icon">
@@ -278,8 +280,6 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <AuthGuard>
       <DashboardContent />
-    </AuthGuard>
   );
 }
