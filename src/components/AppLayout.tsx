@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, History, User, LogOut, PanelLeft, ShoppingCart } from 'lucide-react';
+import { LayoutDashboard, History, User, LogOut, PanelLeft, ShoppingCart, Bell, Home, BotMessageSquare, Leaf, BarChart3, UserCircle } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { Logo } from './Logo';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import placeholderImage from '@/lib/placeholder-images.json';
+import { Badge } from './ui/badge';
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -47,7 +48,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard', label: 'Dashboard', icon: Home },
     { href: '/history', label: 'Advisory History', icon: History },
     { href: '/market', label: 'Market Prices', icon: ShoppingCart },
     { href: '/profile', label: 'My Profile', icon: User },
@@ -60,60 +61,53 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="p-2 flex justify-center">
-            <Logo />
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  onClick={() => router.push(item.href)}
-                  isActive={pathname === item.href}
-                  tooltip={item.label}
-                >
-                  <item.icon />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout} variant="outline" tooltip="Logout">
-                  <LogOut />
-                  <span>Logout</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-          <div className="flex items-center gap-3 p-2 border-t border-border">
-            <Avatar>
-              <AvatarImage src={avatarImage?.imageUrl} data-ai-hint={avatarImage?.imageHint} />
-              <AvatarFallback>{getInitials(userProfile?.name, user?.email || undefined)}</AvatarFallback>
-            </Avatar>
-            <div className="overflow-hidden">
-                <p className="font-semibold truncate">{userProfile?.name || 'Farmer'}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+       <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-white sm:flex">
+         <div className="flex h-16 items-center border-b px-6">
+           <Logo />
+         </div>
+         <nav className="flex flex-col p-4 space-y-1">
+           {navItems.map(item => (
+             <Button
+               key={item.href}
+               variant={pathname === item.href ? "secondary" : "ghost"}
+               className="justify-start gap-2"
+               onClick={() => router.push(item.href)}
+             >
+               <item.icon className="h-5 w-5" />
+               {item.label}
+             </Button>
+           ))}
+         </nav>
+         <div className="mt-auto p-4 border-t">
+           <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
+             <LogOut className="h-5 w-5" />
+             Logout
+           </Button>
+         </div>
+       </aside>
+       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64">
+        <header className="sticky top-0 z-30 hidden h-14 items-center gap-4 border-b bg-white px-6 sm:flex">
+            <div className="flex-1">
+             {/* Can add search bar here if needed */}
             </div>
-          </div>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-           <SidebarTrigger className="sm:hidden">
-              <PanelLeft className="h-5 w-5" />
-              <span className="sr-only">Toggle Menu</span>
-            </SidebarTrigger>
+             <div className="relative">
+                <Button variant="ghost" size="icon">
+                    <Bell className="h-5 w-5" />
+                </Button>
+                <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0" variant="destructive">3</Badge>
+             </div>
+            <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarImage?.imageUrl} />
+                    <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>
+            </div>
         </header>
-        <main className="flex-1 p-4 md:p-6">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
+         <main className="flex-1">{children}</main>
+       </div>
+     </div>
   );
 };
 

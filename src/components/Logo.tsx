@@ -1,12 +1,18 @@
 import { Leaf } from 'lucide-react';
+import Link from 'next/link';
 
-export function Logo() {
+interface LogoProps {
+  size?: 'sm' | 'default';
+}
+
+export function Logo({ size = 'default' }: LogoProps) {
+  const isSmall = size === 'sm';
   return (
-    <div className="flex items-center justify-center gap-2">
-      <Leaf className="h-8 w-8 text-primary" />
-      <span className="text-2xl font-bold font-headline text-foreground">
-        Kisaan Bazaar
+    <Link href="/dashboard" className="flex items-center justify-center gap-2">
+      <Leaf className={`${isSmall ? 'h-6 w-6' : 'h-8 w-8'} text-green-500`} />
+      <span className={`${isSmall ? 'text-xl' : 'text-2xl'} font-bold font-headline text-foreground`}>
+        Kisan Bazaar
       </span>
-    </div>
+    </Link>
   );
 }
