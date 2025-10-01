@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, History, User, LogOut, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, History, User, LogOut, PanelLeft, ShoppingCart } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/history', label: 'Advisory History', icon: History },
+    { href: '/market', label: 'Market Prices', icon: ShoppingCart },
     { href: '/profile', label: 'My Profile', icon: User },
   ];
 
