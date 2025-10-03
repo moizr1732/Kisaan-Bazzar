@@ -24,25 +24,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // This effect will be skipped on the homepage now, but will work on other pages
   useEffect(() => {
-    // A quick check to see if we're on the main page. If so, we'll use mock data.
-    if (window.location.pathname === '/') {
-       setUser({ uid: 'mock-user' } as User);
-       setUserProfile({
-         uid: 'mock-user',
-         email: 'farmer@kisan.com',
-         name: 'Ahmad Faisal',
-         location: 'Okara, Punjab',
-         language: 'pa',
-         crops: ['Wheat', 'Rice'],
-         phoneNumber: '+923001234567',
-         farmSize: 25,
-       });
-       setLoading(false);
-       return;
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {
