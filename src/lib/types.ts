@@ -1,3 +1,4 @@
+
 import type { Timestamp } from 'firebase/firestore';
 
 export interface UserProfile {
@@ -9,6 +10,7 @@ export interface UserProfile {
   farmSize?: number;
   language?: 'en' | 'ur' | 'pa' | 'sd' | 'ps';
   crops?: string[];
+  photoURL?: string;
 }
 
 export interface Advisory {
@@ -17,3 +19,5 @@ export interface Advisory {
   createdAt: Timestamp;
   diagnosis: string;
 }
+
+    

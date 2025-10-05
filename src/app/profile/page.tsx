@@ -15,7 +15,6 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2, Settings, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, Camera, X as XIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +40,9 @@ function ProfileContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cropInput, setCropInput] = useState("");
-  const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
   
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -68,6 +69,9 @@ function ProfileContent() {
         crops: userProfile.crops || [],
         farmSize: userProfile.farmSize || undefined,
       });
+      if (userProfile.photoURL) {
+        setAvatarPreview(userProfile.photoURL);
+      }
     }
   }, [userProfile, form]);
   
@@ -93,7 +97,6 @@ function ProfileContent() {
     setIsSubmitting(true);
     try {
       const updatedProfile = {
-        ...userProfile,
         name: data.name,
         location: data.location,
         phoneNumber: data.phoneNumber,
@@ -101,7 +104,8 @@ function ProfileContent() {
         crops: data.crops,
         farmSize: data.farmSize,
       };
-      await setDoc(doc(db, "users", user.uid), updatedProfile);
+      // Here we use { merge: true } to only update the fields that have changed
+      await setDoc(doc(db, "users", user.uid), updatedProfile, { merge: true });
       await fetchUserProfile(user);
       toast({
         title: "Profile Updated",
@@ -128,6 +132,29 @@ function ProfileContent() {
     router.back();
   }
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+        // Here you would typically upload the file to a storage service
+        // and save the URL to the user's profile.
+        // For now, we just show a preview.
+         toast({
+          title: "Picture Selected",
+          description: "Click 'Save Changes' to make it permanent (upload logic pending).",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   return (
      <div className="bg-background min-h-screen">
       <header className="flex items-center justify-between p-4 bg-primary text-primary-foreground shadow-sm">
@@ -141,12 +168,19 @@ function ProfileContent() {
         <div className="flex flex-col items-center space-y-2">
             <div className="relative">
                 <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                    <AvatarImage src={avatarImage?.imageUrl} />
+                    <AvatarImage src={avatarPreview || undefined} />
                     <AvatarFallback className="text-3xl">{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
                 </Avatar>
-                <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-primary text-primary-foreground">
+                <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-primary text-primary-foreground" onClick={handleAvatarClick}>
                     <Camera className="w-4 h-4"/>
                 </Button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*"
+                />
             </div>
             <p className="text-sm text-muted-foreground">Tap to change photo</p>
         </div>
@@ -196,7 +230,7 @@ function ProfileContent() {
                 value={cropInput}
                 onChange={(e) => setCropInput(e.target.value)}
                 onKeyDown={handleAddCrop}
-                placeholder="Add more crops..."
+                placeholder="Add more crops and press Enter..."
                />
             </div>
 
@@ -206,7 +240,7 @@ function ProfileContent() {
                   name="language"
                   control={form.control}
                   render={({ field }) => (
-                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                     <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a language" />
                         </SelectTrigger>
@@ -280,3 +314,5 @@ function ProfileContent() {
 export default function ProfilePage() {
     return <ProfileContent />
 }
+
+    
