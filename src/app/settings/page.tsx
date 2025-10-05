@@ -66,7 +66,7 @@ export default function SettingsPage() {
                                 <Select defaultValue="pk">
                                     <SelectTrigger id="region" className="w-[120px]">
                                         <SelectValue />
-                                    </Trigger>
+                                    </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="pk">Pakistan</SelectItem>
                                     </SelectContent>
