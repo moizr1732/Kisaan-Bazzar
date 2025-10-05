@@ -36,14 +36,9 @@ import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
 
 interface WeatherData {
-    latitude: number;
-    longitude: number;
-    hourly: {
-        time: string[];
-        temperature_2m: number[];
-    };
-    // For simplicity, we'll manually determine city later or show coords.
-    // Open-Meteo doesn't provide city name directly.
+    current: {
+        temperature_2m: number;
+    }
 }
 
 export default function DashboardPage() {
@@ -54,7 +49,6 @@ export default function DashboardPage() {
   const [loadingAdvisory, setLoadingAdvisory] = useState(true);
   const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [currentTemperature, setCurrentTemperature] = useState<number | null>(null);
   const [locationName, setLocationName] = useState<string>("");
   const [locationError, setLocationError] = useState<string | null>(null);
 
@@ -89,29 +83,28 @@ export default function DashboardPage() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          setLocationName(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); // Default to coordinates
+          
           try {
-            const response = await fetch(
-              `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&hourly=temperature_2m`
+            // Fetch weather data
+            const weatherResponse = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m`
             );
-            if (!response.ok) {
+            if (!weatherResponse.ok) {
               throw new Error("Failed to fetch weather data.");
             }
-            const data = await response.json();
-            setWeatherData(data);
-            
-            // Get the current hour's temperature
-            const now = new Date();
-            const currentHourISO = now.toISOString().slice(0, 14) + "00"; // e.g., "2023-10-27T10:00"
+            const weatherData = await weatherResponse.json();
+            setWeatherData(weatherData);
 
-            const currentIndex = data.hourly.time.findIndex((time: string) => time >= currentHourISO);
-
-            if (currentIndex !== -1) {
-              setCurrentTemperature(data.hourly.temperature_2m[currentIndex]);
-            } else {
-              // Fallback to the most recent available temperature
-              setCurrentTemperature(data.hourly.temperature_2m[data.hourly.temperature_2m.length - 1]);
+            // Fetch location name
+            const geoResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+            if (!geoResponse.ok) {
+                // Fallback to coordinates if city name fails
+                setLocationName(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+                throw new Error('Failed to fetch city name.');
             }
+            const geoData = await geoResponse.json();
+            setLocationName(geoData.city || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+
 
           } catch (error) {
             console.error(error);
@@ -299,11 +292,11 @@ export default function DashboardPage() {
         {/* Weather */}
         <Card className="bg-blue-500 text-white">
             <CardContent className="p-4 flex items-center justify-between">
-            {currentTemperature !== null ? (
+            {weatherData?.current.temperature_2m !== null && weatherData?.current.temperature_2m !== undefined ? (
                 <>
                     <div>
                         <p className="font-bold">Current Weather</p>
-                        <p className="text-4xl font-bold">{Math.round(currentTemperature)}°C</p>
+                        <p className="text-4xl font-bold">{Math.round(weatherData.current.temperature_2m)}°C</p>
                         <p>{locationName}</p>
                     </div>
                     <div className="text-center">
