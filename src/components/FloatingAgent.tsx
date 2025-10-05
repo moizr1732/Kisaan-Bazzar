@@ -20,13 +20,14 @@ export function FloatingAgent() {
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (agentRef.current) {
+            // Prevent drag from starting on right-click
+            if (e.button !== 0) return;
             const rect = agentRef.current.getBoundingClientRect();
             offset.current = {
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top,
             };
             setIsDragging(true);
-            // We use a flag in the ref to distinguish drag from click
             (agentRef.current as any).isBeingDragged = false;
         }
     };
@@ -37,7 +38,6 @@ export function FloatingAgent() {
             let newX = e.clientX - offset.current.x;
             let newY = e.clientY - offset.current.y;
 
-            // Clamp position to be within the viewport
             const parentWidth = window.innerWidth;
             const parentHeight = window.innerHeight;
             const agentWidth = agentRef.current.offsetWidth;
@@ -50,18 +50,17 @@ export function FloatingAgent() {
             agentRef.current.style.top = `${newY}px`;
         }
     };
-
+    
     const handleMouseUp = () => {
+        if (!isDragging) return;
         setIsDragging(false);
         if (agentRef.current) {
-            // Update the state so React knows the final position
             const rect = agentRef.current.getBoundingClientRect();
             setPosition({ x: rect.left, y: rect.top });
         }
     };
     
     const handleClick = () => {
-      // Only open modal if it wasn't a drag
       if (agentRef.current && !(agentRef.current as any).isBeingDragged) {
         setIsModalOpen(true);
       }
@@ -82,24 +81,28 @@ export function FloatingAgent() {
         };
     }, [isDragging]);
 
-    // Set initial position to bottom right on mount
     useEffect(() => {
         if (isMounted && agentRef.current && isNaN(position.x)) {
              const agentWidth = agentRef.current.offsetWidth;
              const agentHeight = agentRef.current.offsetHeight;
              setPosition({
-                 x: window.innerWidth - agentWidth - 24, // 24px from right
-                 y: window.innerHeight - agentHeight - 24, // 24px from bottom
+                 x: window.innerWidth - agentWidth - 24,
+                 y: window.innerHeight - agentHeight - 24,
              });
         }
     }, [isMounted, position.x]);
+
+
+    if (!isMounted) {
+        return null;
+    }
 
     const style: React.CSSProperties = {
         left: !isNaN(position.x) ? `${position.x}px` : undefined,
         top: !isNaN(position.y) ? `${position.y}px` : undefined,
         right: isNaN(position.x) ? '24px' : undefined,
         bottom: isNaN(position.y) ? '24px' : undefined,
-        visibility: isMounted ? 'visible' : 'hidden',
+        visibility: isNaN(position.x) ? 'hidden' : 'visible'
     };
 
     return (
@@ -114,8 +117,10 @@ export function FloatingAgent() {
                 <Button
                     size="icon"
                     className="rounded-full w-14 h-14 bg-primary hover:bg-primary/90 shadow-lg"
-                    // Prevent button click from firing immediately after drag
-                    onPointerDown={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => {
+                        // This helps distinguish between click and drag
+                        e.stopPropagation();
+                    }}
                 >
                     <Bot className="w-8 h-8" />
                     <span className="sr-only">Open Voice Agent</span>
