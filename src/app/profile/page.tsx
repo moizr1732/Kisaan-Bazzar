@@ -13,10 +13,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Loader2, Settings, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, Camera, X as XIcon } from "lucide-react";
+import { Loader2, Settings, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, Camera, X as XIcon, Mic } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/Logo";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
+import { ProfileSetupModal } from "@/components/profile/ProfileSetupModal";
 import { Badge } from "@/components/ui/badge";
 
 const profileSchema = z.object({
@@ -38,7 +39,8 @@ function ProfileContent() {
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [cropInput, setCropInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -201,6 +203,13 @@ function ProfileContent() {
         </div>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="text-center">
+                <Button type="button" onClick={() => setIsProfileModalOpen(true)}>
+                    <Mic className="mr-2 h-4 w-4" />
+                    Setup with Voice
+                </Button>
+            </div>
+            
             <div>
               <label className="text-sm font-medium text-muted-foreground">Full Name</label>
               <Controller
@@ -299,7 +308,7 @@ function ProfileContent() {
               <Home />
               <span className="text-xs">Home</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => setIsModalOpen(true)}>
+          <Button variant="ghost" className="flex flex-col h-16" onClick={() => setIsDiagnosisModalOpen(true)}>
               <BotMessageSquare />
               <span className="text-xs">Advisory</span>
           </Button>
@@ -320,7 +329,8 @@ function ProfileContent() {
        {/* Spacer for bottom nav */}
       <div className="h-16 md:hidden" />
 
-      <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={() => {}} />
+      <DiagnosisModal isOpen={isDiagnosisModalOpen} setIsOpen={setIsDiagnosisModalOpen} onAdvisoryCreated={() => {}} />
+      <ProfileSetupModal isOpen={isProfileModalOpen} setIsOpen={setIsProfileModalOpen} />
 
     </div>
   );
