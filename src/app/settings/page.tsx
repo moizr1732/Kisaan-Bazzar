@@ -66,7 +66,7 @@ export default function SettingsPage() {
                                 <Select defaultValue="pk">
                                     <SelectTrigger id="region" className="w-[120px]">
                                         <SelectValue />
-                                    </SelectTrigger>
+                                    </Trigger>
                                     <SelectContent>
                                         <SelectItem value="pk">Pakistan</SelectItem>
                                     </SelectContent>
@@ -168,10 +168,6 @@ export default function SettingsPage() {
                 <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/dashboard')}>
                     <Home />
                     <span className="text-xs">Home</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col h-16" onClick={() => setIsModalOpen(true)}>
-                    <BotMessageSquare />
-                    <span className="text-xs">Advisory</span>
                 </Button>
                 <Button variant="ghost" className="flex flex-col h-16" onClick={() => {}}>
                     <Leaf />

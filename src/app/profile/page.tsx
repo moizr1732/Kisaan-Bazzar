@@ -308,10 +308,6 @@ function ProfileContent() {
               <Home />
               <span className="text-xs">Home</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => setIsDiagnosisModalOpen(true)}>
-              <BotMessageSquare />
-              <span className="text-xs">Advisory</span>
-          </Button>
           <Button variant="ghost" className="flex flex-col h-16" onClick={() => {}}>
               <Leaf />
               <span className="text-xs">My Crops</span>

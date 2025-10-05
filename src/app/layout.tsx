@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
+import { FloatingAgent } from '@/components/FloatingAgent';
 
 export const metadata: Metadata = {
   title: 'Kisaan Bazaar',
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <AuthProvider>
           {children}
+          <FloatingAgent />
           <Toaster />
         </AuthProvider>
       </body>

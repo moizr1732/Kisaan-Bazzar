@@ -90,7 +90,6 @@ export default function DashboardPage() {
   ]
 
   const quickAccessItems = [
-    { label: "Voice Advisory", icon: Mic, color: "bg-blue-500", action: () => setIsModalOpen(true) },
     { label: "My Crops", icon: Leaf, color: "bg-green-500", action: () => {} },
     { label: "Market Rate", icon: LineChart, color: "bg-yellow-500", action: () => router.push('/market') },
     { label: "Profile", icon: User, color: "bg-purple-500", action: () => router.push('/profile') },
@@ -153,6 +152,13 @@ export default function DashboardPage() {
                     <span className="text-sm">{item.label}</span>
                 </button>
             ))}
+             <button
+                    onClick={() => setIsModalOpen(true)}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg text-white font-semibold space-y-2 bg-blue-500`}
+                >
+                    <Mic className="w-8 h-8" />
+                    <span className="text-sm">Voice Advisory</span>
+                </button>
             </div>
         </div>
 
@@ -251,10 +257,6 @@ export default function DashboardPage() {
           <Button variant="ghost" className="flex flex-col h-16 text-primary" onClick={() => router.push('/dashboard')}>
               <Home />
               <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => setIsModalOpen(true)}>
-              <BotMessageSquare />
-              <span className="text-xs">Advisory</span>
           </Button>
           <Button variant="ghost" className="flex flex-col h-16" onClick={() => {}}>
               <Leaf />
