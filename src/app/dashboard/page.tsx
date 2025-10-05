@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -35,14 +36,14 @@ import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
 
 interface WeatherData {
-    name: string;
-    main: {
-        temp: number;
+    latitude: number;
+    longitude: number;
+    hourly: {
+        time: string[];
+        temperature_2m: number[];
     };
-    weather: {
-        main: string;
-        icon: string;
-    }[];
+    // For simplicity, we'll manually determine city later or show coords.
+    // Open-Meteo doesn't provide city name directly.
 }
 
 export default function DashboardPage() {
@@ -53,6 +54,8 @@ export default function DashboardPage() {
   const [loadingAdvisory, setLoadingAdvisory] = useState(true);
   const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [currentTemperature, setCurrentTemperature] = useState<number | null>(null);
+  const [locationName, setLocationName] = useState<string>("");
   const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,20 +89,30 @@ export default function DashboardPage() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+          setLocationName(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`); // Default to coordinates
           try {
-            const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-            if (!apiKey) {
-                setLocationError("Weather API key is not configured.");
-                return;
-            }
             const response = await fetch(
-              `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
+              `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&hourly=temperature_2m`
             );
             if (!response.ok) {
               throw new Error("Failed to fetch weather data.");
             }
             const data = await response.json();
             setWeatherData(data);
+            
+            // Get the current hour's temperature
+            const now = new Date();
+            const currentHourISO = now.toISOString().slice(0, 14) + "00"; // e.g., "2023-10-27T10:00"
+
+            const currentIndex = data.hourly.time.findIndex((time: string) => time >= currentHourISO);
+
+            if (currentIndex !== -1) {
+              setCurrentTemperature(data.hourly.temperature_2m[currentIndex]);
+            } else {
+              // Fallback to the most recent available temperature
+              setCurrentTemperature(data.hourly.temperature_2m[data.hourly.temperature_2m.length - 1]);
+            }
+
           } catch (error) {
             console.error(error);
             setLocationError("Could not fetch weather data.");
@@ -107,7 +120,7 @@ export default function DashboardPage() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setLocationError("Could not access location. Please enable location services in your browser.");
+          setLocationError("Could not access location. Please enable location services.");
         }
       );
     } else {
@@ -286,20 +299,16 @@ export default function DashboardPage() {
         {/* Weather */}
         <Card className="bg-blue-500 text-white">
             <CardContent className="p-4 flex items-center justify-between">
-            {weatherData ? (
+            {currentTemperature !== null ? (
                 <>
                     <div>
-                        <p className="font-bold">Weather Conditions</p>
-                        <p className="text-4xl font-bold">{Math.round(weatherData.main.temp)}°C</p>
-                        <p>{weatherData.name}</p>
+                        <p className="font-bold">Current Weather</p>
+                        <p className="text-4xl font-bold">{Math.round(currentTemperature)}°C</p>
+                        <p>{locationName}</p>
                     </div>
                     <div className="text-center">
-                        <img
-                            src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
-                            alt={weatherData.weather[0].main}
-                            className="w-16 h-16"
-                        />
-                        <p>{weatherData.weather[0].main}</p>
+                        <CloudSun className="w-16 h-16" />
+                        <p>Current</p>
                     </div>
                 </>
             ) : locationError ? (
@@ -338,3 +347,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
