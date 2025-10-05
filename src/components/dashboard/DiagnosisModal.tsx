@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2, AlertCircle, CheckCircle } from "lucide-react";
-import { voiceToDiagnosis } from "@/ai/flows/voice-to-diagnosis";
+import { multilingualVoiceInteraction } from "@/ai/flows/multilingual-voice-interaction";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -26,7 +26,7 @@ export function DiagnosisModal({ isOpen, setIsOpen, onAdvisoryCreated }: Diagnos
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const handleClose = () => {
     if (modalState === 'processing') return;
@@ -74,20 +74,24 @@ export function DiagnosisModal({ isOpen, setIsOpen, onAdvisoryCreated }: Diagnos
     reader.onloadend = async () => {
       const base64Audio = reader.result as string;
       try {
-        const result = await voiceToDiagnosis({ voiceDataUri: base64Audio });
-        setDiagnosis(result.diagnosis);
+        const result = await multilingualVoiceInteraction({ 
+          voiceCommand: base64Audio,
+          userProfile: userProfile ? JSON.stringify(userProfile) : undefined,
+          location: userProfile?.location,
+        });
+        setDiagnosis(result.response);
         setModalState("success");
 
         if(user) {
             const newAdvisoryRef = await addDoc(collection(db, "advisories"), {
               userId: user.uid,
-              diagnosis: result.diagnosis,
+              diagnosis: result.response,
               createdAt: serverTimestamp(),
             });
             const newAdvisory: Advisory = {
               id: newAdvisoryRef.id,
               userId: user.uid,
-              diagnosis: result.diagnosis,
+              diagnosis: result.response,
               createdAt: {
                 toDate: () => new Date(),
                 seconds: Math.floor(Date.now() / 1000),
@@ -145,7 +149,7 @@ export function DiagnosisModal({ isOpen, setIsOpen, onAdvisoryCreated }: Diagnos
           <div className="text-center py-8">
             <Mic className="mx-auto h-16 w-16 text-primary" />
             <p className="mt-4 text-lg font-medium">Ready to Record</p>
-            <p className="text-muted-foreground">Press the button below to start recording your crop symptoms.</p>
+            <p className="text-muted-foreground">Press the button below to start recording your query.</p>
           </div>
         );
     }
@@ -169,9 +173,9 @@ export function DiagnosisModal({ isOpen, setIsOpen, onAdvisoryCreated }: Diagnos
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Voice-based Crop Diagnosis</DialogTitle>
+          <DialogTitle className="font-headline">Voice Advisory</DialogTitle>
           <DialogDescription>
-            Record your crop's symptoms and our AI will provide a diagnosis.
+            Record your question and our AI assistant Moiz will provide an answer.
           </DialogDescription>
         </DialogHeader>
         {renderContent()}
