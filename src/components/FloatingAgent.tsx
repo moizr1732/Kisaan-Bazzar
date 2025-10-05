@@ -7,7 +7,7 @@ import { DiagnosisModal } from '@/components/dashboard/DiagnosisModal';
 
 export function FloatingAgent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [position, setPosition] = useState({ x: 24, y: 24 }); // Corresponds to bottom-6, right-6
+    const [position, setPosition] = useState({ x: NaN, y: NaN });
     const [isDragging, setIsDragging] = useState(false);
     const agentRef = useRef<HTMLDivElement>(null);
     const offset = useRef({ x: 0, y: 0 });
@@ -76,23 +76,35 @@ export function FloatingAgent() {
         };
     }, [isDragging]);
 
+    // Set initial position to bottom right on mount
+    useEffect(() => {
+        if (agentRef.current) {
+             const agentWidth = agentRef.current.offsetWidth;
+             const agentHeight = agentRef.current.offsetHeight;
+             setPosition({
+                 x: window.innerWidth - agentWidth - 24, // 24px from right
+                 y: window.innerHeight - agentHeight - 24, // 24px from bottom
+             });
+        }
+    }, []);
+
     return (
         <>
             <div
                 ref={agentRef}
                 className="fixed z-50 cursor-grab active:cursor-grabbing"
                 style={{
-                    bottom: isNaN(position.y) ? '24px' : undefined,
+                    left: isNaN(position.x) ? undefined : `${position.x}px`,
+                    top: isNaN(position.y) ? undefined : `${position.y}px`,
                     right: isNaN(position.x) ? '24px' : undefined,
-                    left: !isNaN(position.x) ? `${position.x}px` : undefined,
-                    top: !isNaN(position.y) ? `${position.y}px` : undefined,
+                    bottom: isNaN(position.y) ? '24px' : undefined,
                 }}
                 onMouseDown={handleMouseDown}
                 onClick={handleClick}
             >
                 <Button
                     size="icon"
-                    className="rounded-full w-14 h-14 bg-blue-500 hover:bg-blue-600 shadow-lg pointer-events-none"
+                    className="rounded-full w-14 h-14 bg-primary hover:bg-primary/90 shadow-lg pointer-events-none"
                 >
                     <Bot className="w-8 h-8" />
                     <span className="sr-only">Open Voice Agent</span>
