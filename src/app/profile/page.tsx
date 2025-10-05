@@ -93,7 +93,14 @@ function ProfileContent() {
 
 
   async function onSubmit(data: ProfileFormValues) {
-    if (!user) return;
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Not Authenticated",
+        description: "You must be logged in to update your profile.",
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const updatedProfile = {
@@ -104,18 +111,20 @@ function ProfileContent() {
         crops: data.crops,
         farmSize: data.farmSize,
       };
-      // Here we use { merge: true } to only update the fields that have changed
+
       await setDoc(doc(db, "users", user.uid), updatedProfile, { merge: true });
-      await fetchUserProfile(user);
+      await fetchUserProfile(user); // Refetch profile to update context
+      
       toast({
         title: "Profile Updated",
         description: "Your information has been saved successfully.",
       });
     } catch (error: any) {
+      console.error("Profile update error:", error);
       toast({
         variant: "destructive",
         title: "Update Failed",
-        description: error.message || "Could not update your profile.",
+        description: error.message || "Could not update your profile. Please try again.",
       });
     } finally {
         setIsSubmitting(false);
@@ -142,12 +151,18 @@ function ProfileContent() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
-        // Here you would typically upload the file to a storage service
-        // and save the URL to the user's profile.
-        // For now, we just show a preview.
-         toast({
-          title: "Picture Selected",
-          description: "Click 'Save Changes' to make it permanent (upload logic pending).",
+        // NOTE: In a real app, you would upload the file to a service like Firebase Storage
+        // and then save the URL to the user's profile.
+        // For this demo, we're just showing a local preview.
+        // To make it persistent, you'd add something like:
+        // const storageRef = ref(storage, `avatars/${user.uid}`);
+        // await uploadString(storageRef, reader.result as string, 'data_url');
+        // const photoURL = await getDownloadURL(storageRef);
+        // await setDoc(doc(db, "users", user.uid), { photoURL }, { merge: true });
+        // await fetchUserProfile(user);
+        toast({
+          title: "Photo Selected",
+          description: "Click 'Save Changes' to update your profile. Photo upload is for demonstration.",
         });
       };
       reader.readAsDataURL(file);
@@ -314,5 +329,3 @@ function ProfileContent() {
 export default function ProfilePage() {
     return <ProfileContent />
 }
-
-    
