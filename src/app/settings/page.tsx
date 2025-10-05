@@ -133,7 +133,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base font-semibold">Help & Support</CardTitle>
-                        </Header>
+                        </CardHeader>
                         <CardContent className="space-y-1">
                             {helpItems.map((item, index) => {
                                 const Icon = item.icon;
