@@ -76,11 +76,11 @@ export function ProfileSetupModal({ isOpen, setIsOpen }: ProfileSetupModalProps)
     // or we'd pass this to a transcription service first.
     // Let's assume for now `profileAssistance` can take a placeholder for the voice.
     // A real implementation would convert blob to base64 and send to a transcription API.
-    const "user said something" = "user said something";
+    const userInputText = "user said something";
 
     try {
         const result = await profileAssistance({ 
-            userInput: "user said something", // Placeholder for actual transcription
+            userInput: userInputText, // Placeholder for actual transcription
             context: context,
         });
 
