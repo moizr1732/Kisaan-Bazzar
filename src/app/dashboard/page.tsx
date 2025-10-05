@@ -34,6 +34,17 @@ import { formatDistanceToNow } from "date-fns";
 import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
 
+interface WeatherData {
+    name: string;
+    main: {
+        temp: number;
+    };
+    weather: {
+        main: string;
+        icon: string;
+    }[];
+}
+
 export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, userProfile } = useAuth();
@@ -41,6 +52,8 @@ export default function DashboardPage() {
   const [latestAdvisory, setLatestAdvisory] = useState<Advisory | null>(null);
   const [loadingAdvisory, setLoadingAdvisory] = useState(true);
   const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchLatestAdvisory() {
@@ -67,6 +80,40 @@ export default function DashboardPage() {
     }
     fetchLatestAdvisory();
   }, [user]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+            if (!apiKey) {
+                setLocationError("Weather API key is not configured.");
+                return;
+            }
+            const response = await fetch(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
+            );
+            if (!response.ok) {
+              throw new Error("Failed to fetch weather data.");
+            }
+            const data = await response.json();
+            setWeatherData(data);
+          } catch (error) {
+            console.error(error);
+            setLocationError("Could not fetch weather data.");
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setLocationError("Could not access location. Please enable location services in your browser.");
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   const onAdvisoryCreated = (newAdvisory: Advisory) => {
     setLatestAdvisory(newAdvisory);
@@ -239,15 +286,27 @@ export default function DashboardPage() {
         {/* Weather */}
         <Card className="bg-blue-500 text-white">
             <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                    <p className="font-bold">Weather Conditions</p>
-                    <p className="text-4xl font-bold">32°C</p>
-                    <p>Lahore</p>
-                </div>
-                <div className="text-center">
-                    <CloudSun className="w-16 h-16" />
-                    <p>Clear Skies</p>
-                </div>
+            {weatherData ? (
+                <>
+                    <div>
+                        <p className="font-bold">Weather Conditions</p>
+                        <p className="text-4xl font-bold">{Math.round(weatherData.main.temp)}°C</p>
+                        <p>{weatherData.name}</p>
+                    </div>
+                    <div className="text-center">
+                        <img
+                            src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
+                            alt={weatherData.weather[0].main}
+                            className="w-16 h-16"
+                        />
+                        <p>{weatherData.weather[0].main}</p>
+                    </div>
+                </>
+            ) : locationError ? (
+                <p>{locationError}</p>
+            ) : (
+                <p>Loading weather data...</p>
+            )}
             </CardContent>
         </Card>
       </main>
