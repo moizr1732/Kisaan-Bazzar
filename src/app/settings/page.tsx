@@ -19,6 +19,18 @@ export default function SettingsPage() {
         disease: false,
     });
 
+    const privacyItems = [
+        { label: "Data Sharing" },
+        { label: "Location Access" },
+        { label: "Change Password" },
+    ];
+
+    const helpItems = [
+        { label: "FAQs", icon: HelpCircle },
+        { label: "Contact Support", icon: Headset },
+        { label: "Rate App", icon: Star },
+    ];
+
     return (
         <div className="bg-background min-h-screen">
             <header className="flex items-center gap-4 p-4 bg-primary text-primary-foreground shadow-sm">
@@ -107,11 +119,12 @@ export default function SettingsPage() {
                         <CardTitle className="text-base font-semibold">Privacy & Security</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-1">
-                        <Button variant="ghost" className="w-full justify-between">Data Sharing <ChevronRight /></Button>
-                        <Separator />
-                        <Button variant="ghost" className="w-full justify-between">Location Access <ChevronRight /></Button>
-                         <Separator />
-                        <Button variant="ghost" className="w-full justify-between">Change Password <ChevronRight /></Button>
+                        {privacyItems.map((item, index) => (
+                            <React.Fragment key={item.label}>
+                                <Button variant="ghost" className="w-full justify-between">{item.label} <ChevronRight /></Button>
+                                {index < privacyItems.length - 1 && <Separator />}
+                            </React.Fragment>
+                        ))}
                     </CardContent>
                 </Card>
 
@@ -120,11 +133,15 @@ export default function SettingsPage() {
                         <CardTitle className="text-base font-semibold">Help & Support</CardTitle>
                     </Header>
                     <CardContent className="space-y-1">
-                        <Button variant="ghost" className="w-full justify-between"><span className="flex items-center gap-2"><HelpCircle /> FAQs</span> <ChevronRight /></Button>
-                         <Separator />
-                        <Button variant="ghost" className="w-full justify-between"><span className="flex items-center gap-2"><Headset /> Contact Support</span> <ChevronRight /></Button>
-                         <Separator />
-                        <Button variant="ghost" className="w-full justify-between"><span className="flex items-center gap-2"><Star /> Rate App</span> <ChevronRight /></Button>
+                         {helpItems.map((item, index) => {
+                            const Icon = item.icon;
+                            return (
+                                <React.Fragment key={item.label}>
+                                    <Button variant="ghost" className="w-full justify-between"><span className="flex items-center gap-2"><Icon /> {item.label}</span> <ChevronRight /></Button>
+                                    {index < helpItems.length - 1 && <Separator />}
+                                </React.Fragment>
+                            );
+                        })}
                     </CardContent>
                 </Card>
                 
