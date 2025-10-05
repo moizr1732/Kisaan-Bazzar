@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Toaster } from '@/components/ui/toaster';
 import { FloatingAgent } from '@/components/FloatingAgent';
+import { ClientToaster } from '@/components/ClientToaster';
 
 export const metadata: Metadata = {
   title: 'Kisaan Bazaar',
@@ -26,7 +26,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <FloatingAgent />
-          <Toaster />
+          <ClientToaster />
         </AuthProvider>
       </body>
     </html>
