@@ -15,9 +15,9 @@ const AlertSchema = z.object({
   type: z.enum(['Weather Alert', 'Disease Alert', 'Market Update']),
   message: z.string().describe('The detailed alert message for the user.'),
   color: z
-    .enum(['bg-yellow-100 text-yellow-800', 'bg-red-100 text-red-800', 'bg-green-100 text-green-800'])
+    .enum(['yellow', 'red', 'green'])
     .describe(
-      'The Tailwind CSS classes for styling the alert. Yellow for weather, red for disease, green for market.'
+      'A color hint for styling the alert. Yellow for weather, red for disease, green for market.'
     ),
 });
 
@@ -53,10 +53,10 @@ Create one of each of the following alert types:
 2.  **Disease Alert:** Warn about a potential, realistic crop disease for one of the user's specified crops and location. If no crops are specified, provide a general disease alert for a common crop in the given location.
 3.  **Market Update:** Give a recent, realistic price update (increase or decrease) for a relevant crop in a nearby market.
 
-For each alert, provide the appropriate color style:
-- 'bg-yellow-100 text-yellow-800' for Weather Alert
-- 'bg-red-100 text-red-800' for Disease Alert
-- 'bg-green-100 text-green-800' for Market Update
+For each alert, provide the appropriate color hint:
+- 'yellow' for Weather Alert
+- 'red' for Disease Alert
+- 'green' for Market Update
 
 Your response must be in the specified JSON format. The alerts should be concise and easy to understand for a farmer.
 `,

@@ -48,7 +48,7 @@ interface WeatherData {
 interface Alert {
   type: "Weather Alert" | "Disease Alert" | "Market Update";
   message: string;
-  color: string;
+  color: "yellow" | "red" | "green";
 }
 
 function DashboardContent() {
@@ -180,6 +180,12 @@ function DashboardContent() {
     { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-500", action: () => router.push('/voice-agent') },
   ];
 
+  const alertColors = {
+    yellow: "bg-yellow-100 text-yellow-800",
+    red: "bg-red-100 text-red-800",
+    green: "bg-green-100 text-green-800",
+  };
+
   return (
     <div className="bg-background min-h-screen">
       <header className="flex items-center justify-between p-4 bg-white shadow-sm md:hidden">
@@ -310,7 +316,7 @@ function DashboardContent() {
                      <p className="text-destructive">{alertsError}</p>
                 ) : (
                     alerts.map((alert, index) => (
-                        <div key={index} className={`p-3 rounded-lg flex items-start gap-3 ${alert.color}`}>
+                        <div key={index} className={`p-3 rounded-lg flex items-start gap-3 ${alertColors[alert.color]}`}>
                             <Bell className="w-5 h-5 mt-1 flex-shrink-0" />
                             <div>
                                 <p className="font-bold">{alert.type}</p>
