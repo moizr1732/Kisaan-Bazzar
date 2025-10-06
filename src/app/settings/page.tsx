@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, ChevronRight, HelpCircle, Headset, Star, Home, BotMessageSquare, Leaf, BarChart3, UserCircle } from "lucide-react";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
+import AppLayout from "@/components/AppLayout";
 
-export default function SettingsPage() {
+function SettingsContent() {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [notificationSettings, setNotificationSettings] = useState({
@@ -42,7 +43,7 @@ export default function SettingsPage() {
                     <h1 className="text-xl font-bold">Settings</h1>
                 </header>
 
-                <main className="p-4 space-y-6 max-w-2xl mx-auto pb-20">
+                <main className="space-y-6 max-w-2xl mx-auto">
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base font-semibold">Language & Region</CardTitle>
@@ -160,30 +161,20 @@ export default function SettingsPage() {
                             </div>
                         </CardContent>
                     </Card>
-
                 </main>
             </div>
-
-            <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-t border-t flex justify-around md:hidden">
-                <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/dashboard')}>
-                    <Home />
-                    <span className="text-xs">Home</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/voice-agent')}>
-                    <BotMessageSquare />
-                    <span className="text-xs">Agent</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/market')}>
-                    <BarChart3 />
-                    <span className="text-xs">Market</span>
-                </Button>
-                <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/profile')}>
-                    <UserCircle />
-                    <span className="text-xs">Profile</span>
-                </Button>
-            </nav>
-
             <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={() => {}} />
         </>
     );
 }
+
+
+export default function SettingsPage() {
+    return (
+        <AppLayout>
+            <SettingsContent />
+        </AppLayout>
+    )
+}
+
+    

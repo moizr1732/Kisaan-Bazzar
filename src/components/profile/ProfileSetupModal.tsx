@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -61,7 +62,7 @@ export function ProfileSetupModal({ isOpen, setIsOpen }: ProfileSetupModalProps)
   };
 
   const stopRecording = () => {
-    if (mediaRecorder.current && mediaRecorder.current.state === "listening") {
+    if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
       mediaRecorder.current.stop();
     }
   };
@@ -71,34 +72,33 @@ export function ProfileSetupModal({ isOpen, setIsOpen }: ProfileSetupModalProps)
     const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
     audioChunks.current = [];
 
-    // This is a simplified approach. In a real app, you'd use a Speech-to-Text service.
-    // For this demo, we'll pretend the AI flow can handle raw audio,
-    // or we'd pass this to a transcription service first.
-    // Let's assume for now `profileAssistance` can take a placeholder for the voice.
-    // A real implementation would convert blob to base64 and send to a transcription API.
-    const userInputText = "user said something";
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = async () => {
+        const base64Audio = reader.result as string;
 
-    try {
-        const result = await profileAssistance({ 
-            userInput: userInputText, // Placeholder for actual transcription
-            context: context,
-        });
+        try {
+            const result = await profileAssistance({ 
+                userInput: base64Audio,
+                context: context,
+            });
 
-        setAgentMessage(result.agentResponse);
-        setContext(result.newContext);
+            setAgentMessage(result.agentResponse);
+            setContext(result.newContext);
 
-        if (result.completed) {
-            setModalState("completed");
-            // Here you would typically take the final context and update the user's profile in Firestore
-        } else {
-            setModalState("speaking");
+            if (result.completed) {
+                setModalState("completed");
+                // Here you would typically take the final context and update the user's profile in Firestore
+            } else {
+                setModalState("speaking");
+            }
+
+        } catch (error: any) {
+            console.error("Profile Assistance Error:", error);
+            setErrorMessage(error.message || "Something went wrong.");
+            setModalState("error");
         }
-
-    } catch (error: any) {
-        console.error("Profile Assistance Error:", error);
-        setErrorMessage(error.message || "Something went wrong.");
-        setModalState("error");
-    }
+    };
   };
 
   const renderContent = () => {
@@ -155,3 +155,5 @@ export function ProfileSetupModal({ isOpen, setIsOpen }: ProfileSetupModalProps)
     </Dialog>
   );
 }
+
+    

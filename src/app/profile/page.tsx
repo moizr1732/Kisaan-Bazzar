@@ -19,12 +19,13 @@ import { Logo } from "@/components/Logo";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { ProfileSetupModal } from "@/components/profile/ProfileSetupModal";
 import { Badge } from "@/components/ui/badge";
+import AppLayout from "@/components/AppLayout";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is too short").max(50, "Name is too long"),
   location: z.string().max(100, "Location is too long").optional(),
   phoneNumber: z.string().optional(),
-  language: z.enum(["en", "ur", "pa", "sd", "ps"]),
+  language: z.enum(["en", "ur", "pa", "si", "ps"]),
   crops: z.array(z.string()).optional(),
   farmSize: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
@@ -272,7 +273,7 @@ function ProfileContent() {
                         <SelectItem value="en">English</SelectItem>
                         <SelectItem value="ur">Urdu</SelectItem>
                         <SelectItem value="pa">Punjabi</SelectItem>
-                        <SelectItem value="sd">Sindhi</SelectItem>
+                        <SelectItem value="si">Sindhi</SelectItem>
                         <SelectItem value="ps">Pashto</SelectItem>
                       </SelectContent>
                     </Select>
@@ -298,32 +299,12 @@ function ProfileContent() {
                 <Button type="button" variant="outline" className="w-full" onClick={handleCancel}>
                     Cancel
                 </Button>
+                 <Button type="button" variant="link" className="w-full" onClick={logout}>
+                    Logout
+                </Button>
             </div>
         </form>
       </main>
-
-       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-t border-t flex justify-around md:hidden">
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/dashboard')}>
-              <Home />
-              <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/voice-agent')}>
-              <BotMessageSquare />
-              <span className="text-xs">Agent</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/market')}>
-              <BarChart3 />
-              <span className="text-xs">Market</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16 text-primary" onClick={() => router.push('/profile')}>
-              <UserCircle />
-              <span className="text-xs">Profile</span>
-          </Button>
-      </nav>
-
-       {/* Spacer for bottom nav */}
-      <div className="h-16 md:hidden" />
 
       <DiagnosisModal isOpen={isDiagnosisModalOpen} setIsOpen={setIsDiagnosisModalOpen} onAdvisoryCreated={() => {}} />
       <ProfileSetupModal isOpen={isProfileModalOpen} setIsOpen={setIsProfileModalOpen} />
@@ -333,5 +314,11 @@ function ProfileContent() {
 }
 
 export default function ProfilePage() {
-    return <ProfileContent />
+    return (
+      <AppLayout>
+        <ProfileContent />
+      </AppLayout>
+    )
 }
+
+    

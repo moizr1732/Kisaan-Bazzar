@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import placeholderImage from '@/lib/placeholder-images.json';
 import { Badge } from './ui/badge';
 import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare } from 'lucide-react';
+import { BottomNav } from './BottomNav';
 
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
@@ -50,12 +51,6 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     if (email) return email.charAt(0).toUpperCase();
     return 'A';
   }
-
-  // These pages have their own layout, so we render them directly.
-  if (pathname === '/market' || pathname === '/profile') {
-    return <>{children}</>;
-  }
-
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -104,10 +99,14 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
         </header>
         
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6">{children}</main>
+        
+        <BottomNav />
        </div>
      </div>
   );
 };
 
 export default AppLayout;
+
+    

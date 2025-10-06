@@ -34,6 +34,7 @@ import type { Advisory } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
+import AppLayout from "@/components/AppLayout";
 
 interface WeatherData {
     current: {
@@ -41,7 +42,7 @@ interface WeatherData {
     }
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, userProfile } = useAuth();
   const router = useRouter();
@@ -164,7 +165,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="p-4 space-y-6">
+      <main className="space-y-6">
         {/* User Profile Card */}
         <Card className="overflow-hidden">
           <CardContent className="p-4 flex items-center gap-4">
@@ -306,31 +307,19 @@ export default function DashboardPage() {
             </CardContent>
         </Card>
       </main>
-      
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-t border-t flex justify-around md:hidden">
-          <Button variant="ghost" className="flex flex-col h-16 text-primary" onClick={() => router.push('/dashboard')}>
-              <Home />
-              <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/voice-agent')}>
-              <BotMessageSquare />
-              <span className="text-xs">Agent</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/market')}>
-              <BarChart3 />
-              <span className="text-xs">Market</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/profile')}>
-              <UserCircle />
-              <span className="text-xs">Profile</span>
-          </Button>
-      </nav>
-
-      {/* Spacer for bottom nav */}
-      <div className="h-16 md:hidden" />
 
       <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={onAdvisoryCreated} />
     </div>
   );
 }
+
+
+export default function DashboardPage() {
+  return (
+    <AppLayout>
+      <DashboardContent />
+    </AppLayout>
+  )
+}
+
+    

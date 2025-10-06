@@ -8,7 +8,7 @@ export interface UserProfile {
   location?: string;
   phoneNumber?: string;
   farmSize?: number;
-  language?: 'en' | 'ur' | 'pa' | 'sd' | 'ps';
+  language?: 'en' | 'ur' | 'pa' | 'si' | 'ps';
   crops?: string[];
   photoURL?: string;
 }

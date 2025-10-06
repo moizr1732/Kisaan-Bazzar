@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/Logo";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
+import AppLayout from "@/components/AppLayout";
 
 const overviewData = [
   { title: "High Demand", value: "12", unit: "Crops", color: "text-green-600 bg-green-50 border-green-200", icon: HelpCircle },
@@ -35,105 +36,12 @@ const alertsData = [
     { title: "Transport Update", message: "New transport routes opened between Karachi and Interior Sindh mandis.", time: "1 day ago", icon: Truck, color: "text-blue-800 bg-blue-100" },
 ]
 
-const navItems = [
-    { href: '/dashboard', label: 'Dashboard', Icon: Home },
-    { href: '/voice-agent', label: 'Voice Agent', Icon: BotMessageSquare },
-    { href: '/history', label: 'Advisory History', Icon: History },
-    { href: '/market', label: 'Market Rates', Icon: LineChart },
-    { href: '/profile', label: 'My Profile', Icon: User },
-];
-
-
 function MarketContent() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const { logout } = useAuth();
   
   return (
-    <div className="bg-background min-h-screen flex">
-      {/* Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-white sm:flex">
-         <div className="flex h-16 items-center border-b px-6">
-           <Logo/>
-         </div>
-         <nav className="flex flex-col p-4 space-y-1">
-           {navItems.map((item) => {
-             const Icon = item.Icon;
-             return (
-              <Button
-                key={item.href}
-                variant={item.href === '/market' ? "secondary" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => router.push(item.href)}
-              >
-                <Icon className="h-5 w-5" />
-                {item.label}
-              </Button>
-            )})}
-         </nav>
-         <div className="mt-auto p-4 border-t">
-           <Button variant="ghost" className="w-full justify-start gap-2" onClick={logout}>
-             <LogOut className="h-5 w-5" />
-             Logout
-           </Button>
-         </div>
-      </aside>
-      
-      <div className="flex flex-col w-full sm:pl-60">
-        {/* Mobile Header */}
-        <header className="flex items-center justify-between p-4 bg-white shadow-sm sm:hidden">
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <Menu className="text-gray-600" />
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64">
-                    <aside className="flex h-full w-full flex-col border-r bg-white">
-                        <div className="flex h-16 items-center justify-between border-b px-6">
-                           <Logo />
-                           <Button variant="ghost" size="icon" onClick={() => setIsSheetOpen(false)}><X/></Button>
-                        </div>
-                        <nav className="flex flex-col p-4 space-y-1">
-                           {navItems.map((item) => {
-                             const Icon = item.Icon;
-                             return (
-                             <Button
-                               key={item.href}
-                               variant={item.href === '/market' ? "secondary" : "ghost"}
-                               className="justify-start gap-2"
-                               onClick={() => {
-                                 router.push(item.href);
-                                 setIsSheetOpen(false);
-                               }}
-                             >
-                               <Icon className="h-5 w-5" />
-                               {item.label}
-                             </Button>
-                           )})}
-                        </nav>
-                        <div className="mt-auto p-4 border-t">
-                           <Button variant="ghost" className="w-full justify-start gap-2" onClick={logout}>
-                             <LogOut className="h-5 w-5" />
-                             Logout
-                           </Button>
-                        </div>
-                    </aside>
-                </SheetContent>
-            </Sheet>
-            <Logo size="sm" />
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
-                    <Search className="text-gray-600" />
-                </Button>
-                <Button variant="ghost" size="icon">
-                    <Bell className="text-gray-600" />
-                </Button>
-            </div>
-        </header>
-
-        {/* Desktop Header */}
+    <>
         <header className="hidden sm:flex items-center justify-between p-4 bg-white border-b">
            <div className="flex items-center gap-4">
                <h1 className="text-2xl font-bold font-headline">Market Rates</h1>
@@ -150,7 +58,7 @@ function MarketContent() {
            </div>
         </header>
 
-        <main className="p-4 space-y-6">
+        <main className="space-y-6">
           {/* Market Overview */}
           <Card>
             <CardHeader>
@@ -304,35 +212,17 @@ function MarketContent() {
           </Card>
 
         </main>
-
-         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-t border-t flex justify-around md:hidden">
-            <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/dashboard')}>
-                <Home />
-                <span className="text-xs">Home</span>
-            </Button>
-            <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/voice-agent')}>
-                <BotMessageSquare />
-                <span className="text-xs">Agent</span>
-            </Button>
-            <Button variant="ghost" className="flex flex-col h-16 text-primary" onClick={() => router.push('/market')}>
-                <BarChart3 />
-                <span className="text-xs">Market</span>
-            </Button>
-            <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/profile')}>
-                <UserCircle />
-                <span className="text-xs">Profile</span>
-            </Button>
-        </nav>
-
-        {/* Spacer for bottom nav */}
-        <div className="h-16 md:hidden" />
         <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={() => {}} />
-      </div>
-    </div>
+    </>
   );
 }
 
 export default function MarketPage() {
-    return <MarketContent />
+    return (
+        <AppLayout>
+            <MarketContent />
+        </AppLayout>
+    );
 }
+
+    

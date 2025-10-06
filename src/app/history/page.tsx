@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,7 +18,10 @@ function HistoryContent() {
 
   useEffect(() => {
     async function fetchAdvisories() {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      };
       try {
         const q = query(
           collection(db, "advisories"),
@@ -53,8 +57,8 @@ function HistoryContent() {
           {advisories.map((advisory) => (
             <Card key={advisory.id}>
               <CardHeader>
-                <CardTitle>Diagnosis from {format(advisory.createdAt.toDate(), "PPP")}</CardTitle>
-                 <CardDescription>At {format(advisory.createdAt.toDate(), "p")}</CardDescription>
+                <CardTitle>Diagnosis from {advisory.createdAt ? format(advisory.createdAt.toDate(), "PPP") : 'N/A'}</CardTitle>
+                 <CardDescription>At {advisory.createdAt ? format(advisory.createdAt.toDate(), "p") : ''}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p>{advisory.diagnosis}</p>
@@ -80,3 +84,5 @@ export default function HistoryPage() {
       </AppLayout>
   );
 }
+
+    
