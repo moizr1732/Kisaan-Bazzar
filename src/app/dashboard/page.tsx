@@ -25,6 +25,7 @@ import {
   BotMessageSquare,
   BarChart3,
   UserCircle,
+  Loader2,
 } from "lucide-react";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,11 +36,19 @@ import { formatDistanceToNow } from "date-fns";
 import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
 import AppLayout from "@/components/AppLayout";
+import { getDashboardAlerts } from "@/ai/flows/get-dashboard-alerts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface WeatherData {
     current: {
         temperature_2m: number;
     }
+}
+
+interface Alert {
+  type: "Weather Alert" | "Disease Alert" | "Market Update";
+  message: string;
+  color: string;
 }
 
 function DashboardContent() {
@@ -52,6 +61,9 @@ function DashboardContent() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationName, setLocationName] = useState<string>("");
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loadingAlerts, setLoadingAlerts] = useState(true);
+  const [alertsError, setAlertsError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchLatestAdvisory() {
@@ -121,6 +133,28 @@ function DashboardContent() {
       setLocationError("Geolocation is not supported by this browser.");
     }
   }, []);
+  
+  useEffect(() => {
+    async function fetchAlerts() {
+      if (!userProfile) return;
+      setLoadingAlerts(true);
+      setAlertsError(null);
+      try {
+        const result = await getDashboardAlerts({
+          location: userProfile.location,
+          crops: userProfile.crops,
+        });
+        setAlerts(result.alerts);
+      } catch (error) {
+        console.error("Error fetching alerts:", error);
+        setAlertsError("Could not load alerts at this time.");
+      } finally {
+        setLoadingAlerts(false);
+      }
+    }
+
+    fetchAlerts();
+  }, [userProfile]);
 
   const onAdvisoryCreated = (newAdvisory: Advisory) => {
     setLatestAdvisory(newAdvisory);
@@ -136,12 +170,6 @@ function DashboardContent() {
     { crop: "Wheat", price: "2,400", change: "increase", icon: "🌾" },
     { crop: "Rice", price: "3,200", change: "decrease", icon: "🍚" },
   ];
-
-  const alerts = [
-      { type: "Weather Alert", message: "Expect rain in the next 3 days", color: "bg-yellow-100 text-yellow-800" },
-      { type: "Disease Alert", message: "Tomato blight reported in the area", color: "bg-red-100 text-red-800" },
-      { type: "Market Update", message: "Onion prices have increased", color: "bg-green-100 text-green-800" },
-  ]
 
   const quickAccessItems = [
     { label: "My Crops", icon: Leaf, color: "bg-green-500", action: () => {} },
@@ -272,22 +300,32 @@ function DashboardContent() {
                 <CardTitle className="text-lg">Important Alerts</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-                {alerts.map((alert, index) => (
-                    <div key={index} className={`p-3 rounded-lg flex items-start gap-3 ${alert.color}`}>
-                        <Bell className="w-5 h-5 mt-1" />
-                        <div>
-                            <p className="font-bold">{alert.type}</p>
-                            <p className="text-sm">{alert.message}</p>
-                        </div>
+                {loadingAlerts ? (
+                    <div className="space-y-2">
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
                     </div>
-                ))}
+                ) : alertsError ? (
+                     <p className="text-destructive">{alertsError}</p>
+                ) : (
+                    alerts.map((alert, index) => (
+                        <div key={index} className={`p-3 rounded-lg flex items-start gap-3 ${alert.color}`}>
+                            <Bell className="w-5 h-5 mt-1 flex-shrink-0" />
+                            <div>
+                                <p className="font-bold">{alert.type}</p>
+                                <p className="text-sm">{alert.message}</p>
+                            </div>
+                        </div>
+                    ))
+                )}
             </CardContent>
         </Card>
 
         {/* Weather */}
         <Card className="bg-blue-500 text-white">
             <CardContent className="p-4 flex items-center justify-between">
-            {weatherData?.current.temperature_2m !== null && weatherData?.current.temperature_2m !== undefined ? (
+            {weatherData?.current?.temperature_2m !== null && weatherData?.current?.temperature_2m !== undefined ? (
                 <>
                     <div>
                         <p className="font-bold">Current Weather</p>
@@ -302,7 +340,10 @@ function DashboardContent() {
             ) : locationError ? (
                 <p>{locationError}</p>
             ) : (
-                <p>Loading weather data...</p>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Loading weather...</span>
+                </div>
             )}
             </CardContent>
         </Card>
@@ -321,5 +362,3 @@ export default function DashboardPage() {
     </AppLayout>
   )
 }
-
-    
