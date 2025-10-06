@@ -311,9 +311,9 @@ function MarketContent() {
                 <Home />
                 <span className="text-xs">Home</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col h-16" onClick={() => {}}>
-                <Leaf />
-                <span className="text-xs">My Crops</span>
+            <Button variant="ghost" className="flex flex-col h-16" onClick={() => router.push('/voice-agent')}>
+                <BotMessageSquare />
+                <span className="text-xs">Agent</span>
             </Button>
             <Button variant="ghost" className="flex flex-col h-16 text-primary" onClick={() => router.push('/market')}>
                 <BarChart3 />
