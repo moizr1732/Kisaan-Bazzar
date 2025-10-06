@@ -172,10 +172,10 @@ function DashboardContent() {
   ];
 
   const quickAccessItems = [
-    { label: "My Crops", icon: Leaf, color: "bg-green-500", action: () => {} },
+    { label: "My Crops", icon: Leaf, color: "bg-green-500", action: () => router.push('/my-crops') },
     { label: "Market Rate", icon: LineChart, color: "bg-yellow-500", action: () => router.push('/market') },
     { label: "Profile", icon: User, color: "bg-purple-500", action: () => router.push('/profile') },
-    { label: "Settings", icon: Settings, color: "bg-gray-600", action: () => {} },
+    { label: "Settings", icon: Settings, color: "bg-gray-600", action: () => router.push('/settings') },
     { label: "History", icon: History, color: "bg-red-500", action: () => router.push('/history') },
     { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-500", action: () => router.push('/voice-agent') },
   ];
@@ -212,7 +212,7 @@ function DashboardContent() {
               </div>
               <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                 <Languages className="w-3 h-3" />
-                <span>{userProfile?.language ? {en: 'English', ur: 'Urdu', pa: 'Punjabi'}[userProfile.language] : 'English'}</span>
+                <span>{userProfile?.language ? {en: 'English', ur: 'Urdu', pa: 'Punjabi', si: 'Sindhi', ps: 'Pashto'}[userProfile.language] : 'English'}</span>
               </div>
             </div>
             <Button variant="outline" size="sm" onClick={() => router.push('/profile')}>

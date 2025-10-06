@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import placeholderImage from '@/lib/placeholder-images.json';
 import { Badge } from './ui/badge';
-import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare } from 'lucide-react';
+import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare, Leaf } from 'lucide-react';
 import { BottomNav } from './BottomNav';
 
 
@@ -43,6 +43,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     { href: '/voice-agent', label: 'Voice Agent', icon: BotMessageSquare },
     { href: '/history', label: 'Advisory History', icon: History },
     { href: '/market', label: 'Market Rates', icon: LineChart },
+    { href: '/my-crops', label: 'My Crops', icon: Leaf },
     { href: '/profile', label: 'My Profile', icon: User },
   ];
 
@@ -108,5 +109,3 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default AppLayout;
-
-    
