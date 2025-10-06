@@ -1,9 +1,11 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Mic, Square, Loader2, Volume2, User as UserIcon, Bot as BotIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Mic, Square, Loader2, Volume2, User as UserIcon, Bot as BotIcon, MessageSquare, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { multilingualVoiceInteraction } from "@/ai/flows/multilingual-voice-interaction";
@@ -12,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type AgentState = "idle" | "recording" | "processing" | "speaking";
+type InputMode = "voice" | "text";
 
 interface ConversationTurn {
   speaker: "user" | "agent";
@@ -20,12 +23,15 @@ interface ConversationTurn {
 
 function VoiceAgentContent() {
   const [agentState, setAgentState] = useState<AgentState>("idle");
+  const [inputMode, setInputMode] = useState<InputMode>("voice");
+  const [textInput, setTextInput] = useState("");
   const [conversation, setConversation] = useState<ConversationTurn[]>([]);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
   const { user, userProfile } = useAuth();
+  const conversationEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     audioPlayer.current = new Audio();
@@ -34,6 +40,53 @@ function VoiceAgentContent() {
       audioPlayer.current = null;
     }
   }, []);
+
+  useEffect(() => {
+    conversationEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [conversation]);
+
+  const processInteraction = async (input: { voiceCommand?: string; textCommand?: string; userTurnText: string }) => {
+    try {
+        const userTurn: ConversationTurn = { speaker: 'user', text: input.userTurnText };
+        setConversation(prev => [...prev, userTurn]);
+        setTextInput("");
+        setAgentState("processing");
+
+        const pastInteractions = conversation.map(turn => `${turn.speaker}: ${turn.text}`).join('\n');
+        
+        const interactionResult = await multilingualVoiceInteraction({ 
+          ...input,
+          userProfile: userProfile ? JSON.stringify(userProfile) : undefined,
+          location: userProfile?.location,
+          pastInteractions: pastInteractions
+        });
+
+        const agentTurn: ConversationTurn = { speaker: 'agent', text: interactionResult.response };
+        setConversation(prev => [...prev, agentTurn]);
+
+        const ttsResult = await textToSpeech({ text: interactionResult.response });
+
+        if (audioPlayer.current && inputMode === 'voice') {
+          audioPlayer.current.src = ttsResult.audio;
+          audioPlayer.current.play();
+          setAgentState("speaking");
+          audioPlayer.current.onended = () => {
+            setAgentState("idle");
+          };
+        } else {
+           setAgentState("idle");
+        }
+
+      } catch (error: any) {
+        console.error("AI Interaction Error:", error);
+        toast({
+          variant: "destructive",
+          title: "Interaction Failed",
+          description: error.message || "Could not get a response from the agent.",
+        });
+        setAgentState("idle");
+      }
+  }
 
   const startRecording = async () => {
     setAgentState("recording");
@@ -63,7 +116,6 @@ function VoiceAgentContent() {
   };
 
   const handleRecordingStop = async () => {
-    setAgentState("processing");
     const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
     audioChunks.current = [];
 
@@ -71,52 +123,15 @@ function VoiceAgentContent() {
     reader.readAsDataURL(audioBlob);
     reader.onloadend = async () => {
       const base64Audio = reader.result as string;
-
-      try {
-        const pastInteractions = conversation.map(turn => `${turn.speaker}: ${turn.text}`).join('\n');
-        
-        // This is a placeholder for Speech-to-Text.
-        // Genkit's `multilingualVoiceInteraction` expects text, but we can pass the audio data URI to it.
-        // And update the flow to use `{{media url=...}}`. The flow is already set up for that.
-        // However, we don't get the transcription back to display in the UI.
-        // For a better UX, we'll just show "You spoke."
-        const userTurn: ConversationTurn = { speaker: 'user', text: 'You spoke to the agent.' };
-        setConversation(prev => [...prev, userTurn]);
-
-        const interactionResult = await multilingualVoiceInteraction({ 
-          voiceCommand: base64Audio,
-          userProfile: userProfile ? JSON.stringify(userProfile) : undefined,
-          location: userProfile?.location,
-          pastInteractions: pastInteractions
-        });
-
-        const agentTurn: ConversationTurn = { speaker: 'agent', text: interactionResult.response };
-        setConversation(prev => [...prev, agentTurn]);
-
-        const ttsResult = await textToSpeech({ text: interactionResult.response });
-
-        if (audioPlayer.current) {
-          audioPlayer.current.src = ttsResult.audio;
-          audioPlayer.current.play();
-          setAgentState("speaking");
-          audioPlayer.current.onended = () => {
-            setAgentState("idle");
-          };
-        } else {
-           setAgentState("idle");
-        }
-
-      } catch (error: any) {
-        console.error("AI Interaction Error:", error);
-        toast({
-          variant: "destructive",
-          title: "Interaction Failed",
-          description: error.message || "Could not get a response from the agent.",
-        });
-        setAgentState("idle");
-      }
+      await processInteraction({ voiceCommand: base64Audio, userTurnText: "You spoke to the agent." });
     };
   };
+
+  const handleTextSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!textInput.trim()) return;
+      await processInteraction({ textCommand: textInput, userTurnText: textInput });
+  }
 
   const renderMicButton = () => {
     switch (agentState) {
@@ -158,8 +173,8 @@ function VoiceAgentContent() {
         {conversation.length === 0 && (
           <div className="text-center text-muted-foreground pt-16">
             <BotIcon className="h-12 w-12 mx-auto mb-4" />
-            <p className="text-lg">Kisan Bazaar Voice Assistant</p>
-            <p>Press the microphone to start the conversation.</p>
+            <p className="text-lg">Kisan Bazaar Assistant</p>
+            <p>Use voice or text to start the conversation.</p>
           </div>
         )}
         {conversation.map((turn, index) => (
@@ -183,14 +198,42 @@ function VoiceAgentContent() {
             )}
           </div>
         ))}
+        <div ref={conversationEndRef} />
       </div>
-      <div className="flex flex-col items-center justify-center p-6 border-t bg-background">
-        <p className="text-sm text-muted-foreground mb-4">
-          {agentState === 'recording' && 'Listening...'}
-          {agentState === 'processing' && 'Thinking...'}
-          {agentState === 'speaking' && 'Speaking...'}
-        </p>
-        {renderMicButton()}
+
+      <div className="p-4 border-t bg-background">
+        <div className="flex justify-center gap-2 mb-4">
+            <Button variant={inputMode === 'voice' ? 'secondary' : 'ghost'} onClick={() => setInputMode('voice')} disabled={agentState !== 'idle'}>
+                <Mic className="mr-2 h-4 w-4" /> Voice
+            </Button>
+            <Button variant={inputMode === 'text' ? 'secondary' : 'ghost'} onClick={() => setInputMode('text')} disabled={agentState !== 'idle'}>
+                <MessageSquare className="mr-2 h-4 w-4" /> Text
+            </Button>
+        </div>
+
+        {inputMode === 'voice' ? (
+             <div className="flex flex-col items-center justify-center">
+                <p className="text-sm text-muted-foreground mb-4 h-5">
+                {agentState === 'recording' && 'Listening...'}
+                {agentState === 'processing' && 'Thinking...'}
+                {agentState === 'speaking' && 'Speaking...'}
+                {agentState === 'idle' && 'Tap the mic to speak'}
+                </p>
+                {renderMicButton()}
+            </div>
+        ) : (
+            <form onSubmit={handleTextSubmit} className="flex gap-2">
+                <Input 
+                    placeholder="Type your message..."
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    disabled={agentState !== 'idle'}
+                />
+                <Button type="submit" disabled={agentState !== 'idle' || !textInput.trim()}>
+                    {agentState === 'processing' ? <Loader2 className="animate-spin" /> : <Send />}
+                </Button>
+            </form>
+        )}
       </div>
     </div>
   );
