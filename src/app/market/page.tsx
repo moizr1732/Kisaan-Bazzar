@@ -37,6 +37,7 @@ const alertsData = [
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard', Icon: Home },
+    { href: '/voice-agent', label: 'Voice Agent', Icon: BotMessageSquare },
     { href: '/history', label: 'Advisory History', Icon: History },
     { href: '/market', label: 'Market Rates', Icon: LineChart },
     { href: '/profile', label: 'My Profile', Icon: User },
@@ -335,7 +336,3 @@ function MarketContent() {
 export default function MarketPage() {
     return <MarketContent />
 }
-
-    
-
-

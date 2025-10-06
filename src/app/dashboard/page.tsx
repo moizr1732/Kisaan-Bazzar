@@ -148,6 +148,7 @@ export default function DashboardPage() {
     { label: "Profile", icon: User, color: "bg-purple-500", action: () => router.push('/profile') },
     { label: "Settings", icon: Settings, color: "bg-gray-600", action: () => {} },
     { label: "History", icon: History, color: "bg-red-500", action: () => router.push('/history') },
+    { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-500", action: () => router.push('/voice-agent') },
   ];
 
   return (
@@ -205,13 +206,6 @@ export default function DashboardPage() {
                     <span className="text-sm">{item.label}</span>
                 </button>
             ))}
-             <button
-                    onClick={() => setIsModalOpen(true)}
-                    className={`flex flex-col items-center justify-center p-4 rounded-lg text-white font-semibold space-y-2 bg-blue-500`}
-                >
-                    <Mic className="w-8 h-8" />
-                    <span className="text-sm">Voice Advisory</span>
-                </button>
             </div>
         </div>
 
@@ -340,5 +334,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

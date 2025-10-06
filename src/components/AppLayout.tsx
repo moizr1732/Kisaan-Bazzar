@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import placeholderImage from '@/lib/placeholder-images.json';
 import { Badge } from './ui/badge';
-import { Home, History, LineChart, User, LogOut, Bell } from 'lucide-react';
+import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare } from 'lucide-react';
 
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
@@ -39,6 +39,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
+    { href: '/voice-agent', label: 'Voice Agent', icon: BotMessageSquare },
     { href: '/history', label: 'Advisory History', icon: History },
     { href: '/market', label: 'Market Rates', icon: LineChart },
     { href: '/profile', label: 'My Profile', icon: User },
@@ -110,5 +111,3 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default AppLayout;
-
-    
