@@ -137,6 +137,11 @@ function DashboardContent() {
   useEffect(() => {
     async function fetchAlerts() {
       if (!userProfile) return;
+      // Only fetch new alerts if they haven't been fetched before
+      if (alerts.length > 0) {
+        setLoadingAlerts(false);
+        return;
+      }
       setLoadingAlerts(true);
       setAlertsError(null);
       try {
@@ -154,7 +159,7 @@ function DashboardContent() {
     }
 
     fetchAlerts();
-  }, [userProfile]);
+  }, [userProfile, alerts.length]);
 
   const onAdvisoryCreated = (newAdvisory: Advisory) => {
     setLatestAdvisory(newAdvisory);

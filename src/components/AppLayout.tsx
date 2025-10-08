@@ -69,13 +69,15 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     return 'A';
   }
 
-  const handleLanguageChange = async (lang: UserProfile['language']) => {
+  const handleLanguageChange = async (lang: string) => {
     if (!user || !lang) return;
+    const language = lang as UserProfile['language'];
     try {
-      await setDoc(doc(db, "users", user.uid), { language: lang }, { merge: true });
+      await setDoc(doc(db, "users", user.uid), { language }, { merge: true });
       await fetchUserProfile(user);
       toast({ title: 'Language updated!' });
     } catch (error) {
+      console.error(error);
       toast({ variant: 'destructive', title: 'Could not update language' });
     }
   }
