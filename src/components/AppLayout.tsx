@@ -15,8 +15,15 @@ import { BottomNav } from './BottomNav';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { translateUI } from '@/ai/flows/translate-ui';
 import type { UserProfile } from '@/lib/types';
+
+const navLabels = {
+  en: ['Dashboard', 'Voice Agent', 'Advisory History', 'Market Rates', 'My Crops', 'My Profile'],
+  ur: ['ڈیش بورڈ', 'صوتی معاون', 'مشورتی تاریخ', 'مارکیٹ ریٹس', 'میری فصلیں', 'میرا پروفائل'],
+  pa: ['ਡੈਸ਼ਬੋਰਡ', 'ਵੌਇਸ ਏਜੰਟ', 'ਸਲਾਹਕਾਰ ਇਤਿਹਾਸ', 'ਮਾਰਕੀਟ ਰੇਟ', 'ਮੇਰੀਆਂ ਫਸਲਾਂ', 'ਮੇਰਾ ਪ੍ਰੋਫਾਈਲ'],
+  si: ['ڊيش بورڊ', 'آواز جو اسسٽنٽ', 'مشورتي تاريخ', 'مارڪيٽ اگهه', 'منهنجا فصل', 'منهنجو پروفائيل'],
+  ps: ['ډشبورډ', 'غږیز معاون', 'مشورتي تاریخ', 'د بازار نرخونه', 'زما فصلونه', 'زما پروفایل'],
+};
 
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
@@ -25,11 +32,9 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { toast } = useToast();
   const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
-  const [isTranslating, setIsTranslating] = useState(false);
-
-  const [translatedNav, setTranslatedNav] = useState([
-    'Dashboard', 'Voice Agent', 'Advisory History', 'Market Rates', 'My Crops', 'My Profile'
-  ]);
+  
+  const currentLang = userProfile?.language || 'en';
+  const translatedNav = navLabels[currentLang];
   
   const navItems = [
     { href: '/dashboard', label: translatedNav[0], icon: Home },
@@ -39,31 +44,6 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     { href: '/my-crops', label: translatedNav[4], icon: Leaf },
     { href: '/profile', label: translatedNav[5], icon: User },
   ];
-
-  const translateNav = useCallback(async (language: UserProfile['language']) => {
-    if (language === 'en') {
-      setTranslatedNav(['Dashboard', 'Voice Agent', 'Advisory History', 'Market Rates', 'My Crops', 'My Profile']);
-      return;
-    }
-    setIsTranslating(true);
-    try {
-      const originalLabels = ['Dashboard', 'Voice Agent', 'Advisory History', 'Market Rates', 'My Crops', 'My Profile'];
-      const result = await translateUI({ texts: originalLabels, targetLanguage: language! });
-      setTranslatedNav(result.translations);
-    } catch (error) {
-      console.error("Translation failed:", error);
-      toast({ variant: 'destructive', title: 'Translation failed' });
-    } finally {
-      setIsTranslating(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    if (userProfile?.language) {
-      translateNav(userProfile.language);
-    }
-  }, [userProfile?.language, translateNav]);
-
 
   const handleLogout = async () => {
     try {
@@ -108,12 +88,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
            <Logo />
          </div>
          <nav className="flex flex-col p-4 space-y-1">
-           {isTranslating ? (
-             <div className="flex justify-center items-center h-48">
-               <Loader2 className="w-6 h-6 animate-spin" />
-             </div>
-           ) : (
-            navItems.map(item => (
+           
+            {navItems.map(item => (
               <Button
                 key={item.href}
                 variant={pathname === item.href ? "secondary" : "ghost"}
@@ -123,8 +99,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <item.icon className="h-5 w-5" />
                 {item.label}
               </Button>
-            ))
-           )}
+            ))}
+           
          </nav>
          <div className="mt-auto p-4 border-t">
            <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
@@ -138,7 +114,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <header className="sticky top-0 z-30 hidden h-14 items-center gap-4 border-b bg-white px-6 sm:flex">
             <div className="flex-1">
               <div className="w-48">
-                 <Select onValueChange={handleLanguageChange} value={userProfile?.language || 'en'} disabled={isTranslating}>
+                 <Select onValueChange={handleLanguageChange} value={userProfile?.language || 'en'}>
                     <SelectTrigger>
                       <div className="flex items-center gap-2">
                         <Languages className="w-4 h-4" />
