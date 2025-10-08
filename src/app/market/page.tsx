@@ -1,33 +1,23 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bell, Search, Clock, MapPin, ArrowUp, ArrowDown, HelpCircle, Minus, TrendingUp, AlertTriangle, Truck, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, LineChart, User, LogOut, Menu, X, History } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Logo } from "@/components/Logo";
+import { Bell, Search, Clock, MapPin, ArrowUp, ArrowDown, HelpCircle, Minus, TrendingUp, AlertTriangle, Truck } from "lucide-react";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import AppLayout from "@/components/AppLayout";
+import { getMarketRates } from "@/ai/flows/get-market-rates";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { GetMarketRatesOutput } from "@/ai/flows/get-market-rates";
 
 const overviewData = [
   { title: "High Demand", value: "12", unit: "Crops", color: "text-green-600 bg-green-50 border-green-200", icon: HelpCircle },
   { title: "Medium Demand", value: "8", unit: "Crops", color: "text-orange-600 bg-orange-50 border-orange-200", icon: Minus },
   { title: "Low Demand", value: "5", unit: "Crops", color: "text-red-600 bg-red-50 border-red-200", icon: HelpCircle },
   { title: "Active Markets", value: "15", unit: "Mandis", color: "text-blue-600 bg-blue-50 border-blue-200", icon: MapPin },
-];
-
-const cropData = [
-  { name: "Wheat", urduName: "گندم", demand: "High", price40kg: "3,200", price1kg: "80", change: "+5.2%", mandi: "Lahore Mandi", updated: "1 hour ago", icon: "🌾", changeColor: "text-green-600" },
-  { name: "Rice (Basmati)", urduName: "چاول", demand: "High", price40kg: "8,500", price1kg: "212", change: "+3.8%", mandi: "Sheikhupura Mandi", updated: "2 hours ago", icon: "🍚", changeColor: "text-green-600" },
-  { name: "Tomato", urduName: "ٹماٹر", demand: "Medium", price40kg: "1,800", price1kg: "45", change: "-2.1%", mandi: "Karachi Mandi", updated: "3 hours ago", icon: "🍅", changeColor: "text-red-600" },
-  { name: "Onion", urduName: "پیاز", demand: "Low", price40kg: "1,200", price1kg: "30", change: "-8.5%", mandi: "Multan Mandi", updated: "1 hour ago", icon: "🧅", changeColor: "text-red-600" },
-  { name: "Cotton", urduName: "کپاس", demand: "High", price40kg: "6,800", price1kg: "170", change: "+7.2%", mandi: "Faisalabad Mandi", updated: "2 hours ago", icon: "☁️", changeColor: "text-green-600" },
-  { name: "Potato", urduName: "آلو", demand: "Medium", price40kg: "1,600", price1kg: "40", change: "+1.5%", mandi: "Okara Mandi", updated: "4 hours ago", icon: "🥔", changeColor: "text-green-600" },
 ];
 
 const alertsData = [
@@ -37,8 +27,27 @@ const alertsData = [
 ]
 
 function MarketContent() {
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [marketData, setMarketData] = useState<GetMarketRatesOutput['crops']>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchMarketRates() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getMarketRates();
+        setMarketData(data.crops);
+      } catch (e) {
+        console.error("Failed to fetch market rates:", e);
+        setError("Could not load market rates. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchMarketRates();
+  }, []);
   
   return (
     <>
@@ -143,51 +152,58 @@ function MarketContent() {
           {/* Current Market Rates */}
           <div>
               <h2 className="text-lg font-semibold mb-2 px-2">Current Market Rates</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {cropData.map(crop => (
-                      <Card key={crop.name} className="overflow-hidden">
-                          <CardContent className="p-4">
-                              <div className="flex justify-between items-start">
-                                  <div className="flex items-center gap-3">
-                                      <div className="text-4xl">{crop.icon}</div>
-                                      <div>
-                                          <p className="font-bold">{crop.name}</p>
-                                          <p className="text-sm text-muted-foreground">{crop.urduName}</p>
-                                      </div>
-                                  </div>
-                                  <div className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                                      crop.demand === 'High' ? 'bg-green-100 text-green-800' :
-                                      crop.demand === 'Medium' ? 'bg-orange-100 text-orange-800' :
-                                      'bg-red-100 text-red-800'
-                                  }`}>{crop.demand}</div>
-                              </div>
-                              <div className="grid grid-cols-3 gap-2 mt-4 text-center">
-                                  <div>
-                                      <p className="text-xs text-muted-foreground">Per 40kg</p>
-                                      <p className="font-bold">Rs. {crop.price40kg}</p>
-                                  </div>
-                                  <div>
-                                      <p className="text-xs text-muted-foreground">Per kg</p>
-                                      <p className="font-bold">Rs. {crop.price1kg}</p>
-                                  </div>
-                                  <div>
-                                      <p className="text-xs text-muted-foreground">Change</p>
-                                      <p className={`font-bold flex items-center justify-center ${crop.changeColor}`}>
-                                          {crop.change.startsWith('+') ? <ArrowUp className="w-3 h-3"/> : <ArrowDown className="w-3 h-3"/>}
-                                          {crop.change.substring(1)}
-                                      </p>
-                                  </div>
-                              </div>
-                          </CardContent>
-                          <div className="bg-gray-50 px-4 py-2 text-xs text-muted-foreground border-t">
-                              {crop.mandi} &bull; Updated {crop.updated}
-                          </div>
-                      </Card>
-                  ))}
-              </div>
-              <div className="mt-6 text-center">
-                  <Button>Load More Crops</Button>
-              </div>
+              {loading ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                 </div>
+              ) : error ? (
+                 <p className="text-destructive">{error}</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {marketData.map(crop => (
+                        <Card key={crop.name} className="overflow-hidden">
+                            <CardContent className="p-4">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-4xl">{crop.icon}</div>
+                                        <div>
+                                            <p className="font-bold">{crop.name}</p>
+                                            <p className="text-sm text-muted-foreground">{crop.urduName}</p>
+                                        </div>
+                                    </div>
+                                    <div className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                                        crop.demand === 'High' ? 'bg-green-100 text-green-800' :
+                                        crop.demand === 'Medium' ? 'bg-orange-100 text-orange-800' :
+                                        'bg-red-100 text-red-800'
+                                    }`}>{crop.demand}</div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Per 40kg</p>
+                                        <p className="font-bold">Rs. {crop.price40kg}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Per kg</p>
+                                        <p className="font-bold">Rs. {crop.price1kg}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Change</p>
+                                        <p className={`font-bold flex items-center justify-center ${crop.changeColor}`}>
+                                            {crop.change.startsWith('+') ? <ArrowUp className="w-3 h-3"/> : <ArrowDown className="w-3 h-3"/>}
+                                            {crop.change.substring(1)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <div className="bg-gray-50 px-4 py-2 text-xs text-muted-foreground border-t">
+                                {crop.mandi} &bull; Updated {crop.updated}
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+              )}
           </div>
 
            {/* Market Alerts & News */}
@@ -224,5 +240,3 @@ export default function MarketPage() {
         </AppLayout>
     );
 }
-
-    
