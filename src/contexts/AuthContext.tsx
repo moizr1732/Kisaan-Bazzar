@@ -24,6 +24,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUserProfile = async (user: User, createIfMissing = false) => {
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const profile = docSnap.data() as UserProfile;
+      setUserProfile(profile);
+    } else if (createIfMissing) {
+      const newProfile: UserProfile = {
+        uid: user.uid,
+        email: user.email!,
+        name: user.displayName || 'New Farmer',
+        location: '',
+        language: 'en',
+        crops: [],
+        phoneNumber: '',
+        farmSize: undefined,
+      };
+      await setDoc(docRef, newProfile);
+      setUserProfile(newProfile);
+    }
+  };
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
@@ -52,28 +75,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     return signOut(auth);
-  };
-
-  const fetchUserProfile = async (user: User, createIfMissing = false) => {
-    const docRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setUserProfile(docSnap.data() as UserProfile);
-    } else if (createIfMissing) {
-      const newProfile: UserProfile = {
-        uid: user.uid,
-        email: user.email!,
-        name: user.displayName || 'New Farmer',
-        location: '',
-        language: 'en',
-        crops: [],
-        phoneNumber: '',
-        farmSize: undefined,
-      };
-      await setDoc(docRef, newProfile);
-      setUserProfile(newProfile);
-    }
   };
 
   const value = {
