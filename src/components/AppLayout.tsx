@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,14 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import placeholderImage from '@/lib/placeholder-images.json';
 import { Badge } from './ui/badge';
-import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare, Leaf, Languages, Loader2 } from 'lucide-react';
+import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare, Leaf, Languages } from 'lucide-react';
 import { BottomNav } from './BottomNav';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { UserProfile } from '@/lib/types';
 
-const navLabels = {
+const navLabels: Record<string, string[]> = {
   en: ['Dashboard', 'Voice Agent', 'Advisory History', 'Market Rates', 'My Crops', 'My Profile'],
   ur: ['ڈیش بورڈ', 'صوتی معاون', 'مشورتی تاریخ', 'مارکیٹ ریٹس', 'میری فصلیں', 'میرا پروفائل'],
   pa: ['ਡੈਸ਼ਬੋਰਡ', 'ਵੌਇਸ ਏਜੰਟ', 'ਸਲਾਹਕਾਰ ਇਤਿਹਾਸ', 'ਮਾਰਕੀਟ ਰੇਟ', 'ਮੇਰੀਆਂ ਫਸਲਾਂ', 'ਮੇਰਾ ਪ੍ਰੋਫਾਈਲ'],
@@ -34,7 +34,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
   
   const currentLang = userProfile?.language || 'en';
-  const translatedNav = navLabels[currentLang];
+  const translatedNav = navLabels[currentLang] || navLabels.en;
   
   const navItems = [
     { href: '/dashboard', label: translatedNav[0], icon: Home },
