@@ -75,10 +75,8 @@ function MyCropsContent() {
         
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
-        // Update local state immediately for instant feedback
         setCrops(updatedCrops);
 
-        // Fetch profile to keep context in sync
         await fetchUserProfile(user);
         
         toast({
@@ -112,10 +110,8 @@ function MyCropsContent() {
         const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
 
-        // Update local state immediately
         setCrops(updatedCrops);
 
-        // Fetch profile to keep context in sync
         await fetchUserProfile(user);
         
         toast({
