@@ -18,6 +18,7 @@ import Image from "next/image";
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
   const [newCropName, setNewCropName] = useState("");
+  const [newCropPrice, setNewCropPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +57,7 @@ function MyCropsContent() {
         let newCrop: Crop = {
           name: trimmedCropName,
           slug: cropSlug,
+          price: newCropPrice.trim() || undefined,
           imageUrl: imagePreview || undefined,
         };
 
@@ -74,6 +76,7 @@ function MyCropsContent() {
         });
         
         setNewCropName("");
+        setNewCropPrice("");
         setImagePreview(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
@@ -125,17 +128,25 @@ function MyCropsContent() {
             </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-2">
-                <Input 
-                    placeholder="e.g., Wheat"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <Input 
+                    placeholder="Crop Name, e.g., Wheat"
                     value={newCropName}
                     onChange={(e) => setNewCropName(e.target.value)}
                     disabled={isSubmitting}
-                    className="flex-grow"
                 />
-                <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting}>
+                 <Input 
+                    placeholder="Price (per 40kg), e.g., 2400"
+                    value={newCropPrice}
+                    onChange={(e) => setNewCropPrice(e.target.value)}
+                    disabled={isSubmitting}
+                    type="number"
+                />
+            </div>
+             <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting} className="w-full sm:w-auto">
                    <Upload className="mr-2 h-4 w-4" />
-                   Upload Image
+                   Upload Image (Optional)
                 </Button>
                 <input
                     type="file"
@@ -179,8 +190,9 @@ function MyCropsContent() {
                             )}
                         </div>
                     </CardContent>
-                    <CardFooter className="p-3 bg-white/80 backdrop-blur-sm">
+                    <CardFooter className="p-3 bg-white/80 backdrop-blur-sm flex-col items-start">
                         <p className="font-semibold w-full truncate">{crop.name}</p>
+                         {crop.price && <p className="text-sm text-muted-foreground">Rs. {crop.price} / 40kg</p>}
                     </CardFooter>
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                          <Button 
@@ -215,5 +227,3 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
-
-    

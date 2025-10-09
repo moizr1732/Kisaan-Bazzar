@@ -5,6 +5,7 @@ import { z } from 'zod';
 export interface Crop {
   slug: string;
   name: string;
+  price?: string;
   imageUrl?: string;
   icon?: string;
 }
