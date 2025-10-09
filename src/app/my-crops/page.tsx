@@ -72,6 +72,7 @@ function MyCropsContent() {
         }
         
         const updatedCrops = [...crops, newCrop];
+        
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
         // Update local state immediately for instant feedback
