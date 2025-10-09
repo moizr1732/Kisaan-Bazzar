@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -23,8 +23,13 @@ function MyCropsContent() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [crops, setCrops] = useState<Crop[]>([]);
 
-  const crops = userProfile?.crops || [];
+  useEffect(() => {
+    if (userProfile?.crops) {
+      setCrops(userProfile.crops);
+    }
+  }, [userProfile]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -68,6 +73,11 @@ function MyCropsContent() {
         
         const updatedCrops = [...crops, newCrop];
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
+        
+        // Update local state immediately for instant feedback
+        setCrops(updatedCrops);
+
+        // Fetch profile to keep context in sync
         await fetchUserProfile(user);
         
         toast({
@@ -100,7 +110,13 @@ function MyCropsContent() {
     try {
         const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
+
+        // Update local state immediately
+        setCrops(updatedCrops);
+
+        // Fetch profile to keep context in sync
         await fetchUserProfile(user);
+        
         toast({
             title: "Crop Removed",
             description: `"${cropToRemove.name}" has been removed from your profile.`,
