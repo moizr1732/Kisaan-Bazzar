@@ -158,7 +158,7 @@ function MyCropsContent() {
             </div>
             {imagePreview && (
                 <div className="relative w-32 h-32">
-                    <Image src={imagePreview} alt="Preview" width={128} height={128} objectFit="cover" className="rounded-md" />
+                    <Image src={imagePreview} alt="Preview" width={128} height={128} className="rounded-md object-cover" />
                     <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
                         <XIcon className="h-4 w-4"/>
                     </Button>
