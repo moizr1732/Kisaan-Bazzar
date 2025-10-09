@@ -20,13 +20,14 @@ import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { ProfileSetupModal } from "@/components/profile/ProfileSetupModal";
 import { Badge } from "@/components/ui/badge";
 import AppLayout from "@/components/AppLayout";
+import type { Crop } from "@/lib/types";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is too short").max(50, "Name is too long"),
   location: z.string().max(100, "Location is too long").optional(),
   phoneNumber: z.string().optional(),
   language: z.enum(["en", "ur", "pa", "si", "ps"]),
-  crops: z.array(z.string()).optional(),
+  crops: z.array(z.custom<Crop>()).optional(),
   farmSize: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
     z.number().positive("Farm size must be a positive number.").optional()
@@ -81,17 +82,19 @@ function ProfileContent() {
   const handleAddCrop = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && cropInput.trim() !== "") {
         e.preventDefault();
+        const cropName = cropInput.trim();
+        const cropSlug = cropName.toLowerCase().replace(/\s+/g, '-');
         const currentCrops = getValues("crops") || [];
-        if (!currentCrops.includes(cropInput.trim())) {
-            setValue("crops", [...currentCrops, cropInput.trim()]);
+        if (!currentCrops.some(c => c.slug === cropSlug)) {
+            setValue("crops", [...currentCrops, { name: cropName, slug: cropSlug }]);
         }
         setCropInput("");
     }
   };
 
-  const handleRemoveCrop = (cropToRemove: string) => {
+  const handleRemoveCrop = (cropToRemove: Crop) => {
     const currentCrops = getValues("crops") || [];
-    setValue("crops", currentCrops.filter(crop => crop !== cropToRemove));
+    setValue("crops", currentCrops.filter(crop => crop.slug !== cropToRemove.slug));
   };
 
 
@@ -243,8 +246,8 @@ function ProfileContent() {
               <label className="text-sm font-medium text-muted-foreground">Crops Grown</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {crops.map(crop => (
-                   <Badge key={crop} variant="secondary" className="bg-green-100 text-green-800">
-                     {crop}
+                   <Badge key={crop.slug} variant="secondary" className="bg-green-100 text-green-800">
+                     {crop.name}
                      <button type="button" onClick={() => handleRemoveCrop(crop)} className="ml-2">
                        <XIcon className="h-3 w-3"/>
                      </button>

@@ -2,6 +2,13 @@
 import type { Timestamp } from 'firebase/firestore';
 import { z } from 'zod';
 
+export interface Crop {
+  slug: string;
+  name: string;
+  imageUrl?: string;
+  icon?: string;
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -10,7 +17,7 @@ export interface UserProfile {
   phoneNumber?: string;
   farmSize?: number;
   language?: 'en' | 'ur' | 'pa' | 'si' | 'ps';
-  crops?: string[];
+  crops?: Crop[];
   photoURL?: string;
 }
 

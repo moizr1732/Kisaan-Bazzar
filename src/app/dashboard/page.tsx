@@ -31,7 +31,7 @@ import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { useAuth } from "@/hooks/useAuth";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Advisory } from "@/lib/types";
+import type { Advisory, UserProfile } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
@@ -147,7 +147,7 @@ function DashboardContent() {
       try {
         const result = await getDashboardAlerts({
           location: userProfile.location,
-          crops: userProfile.crops,
+          crops: userProfile.crops?.map(c => c.name),
         });
         setAlerts(result.alerts);
       } catch (error) {
@@ -159,7 +159,8 @@ function DashboardContent() {
     }
 
     fetchAlerts();
-  }, [userProfile, alerts.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile]);
 
   const onAdvisoryCreated = (newAdvisory: Advisory) => {
     setLatestAdvisory(newAdvisory);

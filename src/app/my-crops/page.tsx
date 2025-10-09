@@ -1,49 +1,84 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, Plus, X as XIcon, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Leaf, Plus, X as XIcon, Loader2, Image as ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getIconForCrop } from "@/ai/flows/get-icon-for-crop";
+import type { Crop } from "@/lib/types";
+import Image from "next/image";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
-  const [newCrop, setNewCrop] = useState("");
+  const [newCropName, setNewCropName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const crops = userProfile?.crops || [];
 
-  const handleAddCrop = async () => {
-    if (!user || !newCrop.trim()) return;
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const trimmedCrop = newCrop.trim();
-    if (crops.includes(trimmedCrop)) {
+  const handleAddCrop = async () => {
+    if (!user || !newCropName.trim()) return;
+
+    const trimmedCropName = newCropName.trim();
+    const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
+
+    if (crops.some(crop => crop.slug === cropSlug)) {
         toast({
             variant: "destructive",
             title: "Crop already exists",
-            description: `"${trimmedCrop}" is already in your list.`,
+            description: `"${trimmedCropName}" is already in your list.`,
         });
         return;
     }
 
     setIsSubmitting(true);
     try {
-        const updatedCrops = [...crops, trimmedCrop];
+        let newCrop: Crop = {
+          name: trimmedCropName,
+          slug: cropSlug,
+          imageUrl: imagePreview || undefined,
+        };
+
+        if (!imagePreview) {
+          const iconResult = await getIconForCrop({ cropName: trimmedCropName });
+          newCrop.icon = iconResult.icon;
+        }
+        
+        const updatedCrops = [...crops, newCrop];
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         await fetchUserProfile(user);
+        
         toast({
             title: "Crop Added",
-            description: `"${trimmedCrop}" has been added to your profile.`,
+            description: `"${trimmedCropName}" has been added to your profile.`,
         });
-        setNewCrop("");
+        
+        setNewCropName("");
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+
     } catch (error: any) {
         toast({
             variant: "destructive",
@@ -55,17 +90,19 @@ function MyCropsContent() {
     }
   };
 
-  const handleRemoveCrop = async (cropToRemove: string) => {
+  const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
 
-    setIsSubmitting(true);
+    // Set a different loading state if needed, or share `isSubmitting`
+    // For now, we disable all actions while any operation is in progress.
+    setIsSubmitting(true); 
     try {
-        const updatedCrops = crops.filter(crop => crop !== cropToRemove);
+        const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         await fetchUserProfile(user);
         toast({
             title: "Crop Removed",
-            description: `"${cropToRemove}" has been removed from your profile.`,
+            description: `"${cropToRemove.name}" has been removed from your profile.`,
         });
     } catch (error: any) {
         toast({
@@ -78,7 +115,6 @@ function MyCropsContent() {
     }
   };
 
-
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold font-headline">My Crops</h1>
@@ -90,55 +126,86 @@ function MyCropsContent() {
                 Add a New Crop
             </CardTitle>
         </CardHeader>
-        <CardContent>
-            <div className="flex gap-2">
+        <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-2">
                 <Input 
                     placeholder="e.g., Wheat"
-                    value={newCrop}
-                    onChange={(e) => setNewCrop(e.target.value)}
+                    value={newCropName}
+                    onChange={(e) => setNewCropName(e.target.value)}
                     disabled={isSubmitting}
+                    className="flex-grow"
                 />
-                <Button onClick={handleAddCrop} disabled={isSubmitting || !newCrop.trim()}>
-                    {isSubmitting ? <Loader2 className="animate-spin" /> : "Add Crop"}
+                <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting}>
+                   <Upload className="mr-2" />
+                   Upload Image
                 </Button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*"
+                />
             </div>
+            {imagePreview && (
+                <div className="relative w-32 h-32">
+                    <Image src={imagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md" />
+                    <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
+                        <XIcon className="h-4 w-4"/>
+                    </Button>
+                </div>
+            )}
+             <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()} className="w-full sm:w-auto">
+                {isSubmitting ? <Loader2 className="animate-spin" /> : "Add Crop"}
+            </Button>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div>
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <Leaf className="text-green-600" />
             Your Registered Crops
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {crops.length > 0 ? (
-            <div className="flex flex-wrap gap-4">
+        </h2>
+        {crops.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {crops.map((crop) => (
-                <Badge
-                  key={crop}
-                  variant="outline"
-                  className="text-lg px-4 py-2 bg-green-50 border-green-200 text-green-800 relative group"
-                >
-                  {crop}
-                  <button 
-                    onClick={() => handleRemoveCrop(crop)} 
-                    disabled={isSubmitting}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <XIcon className="w-3 h-3" />
-                  </button>
-                </Badge>
+                <Card key={crop.slug} className="group relative overflow-hidden">
+                    <CardContent className="p-0">
+                        <div className="aspect-square w-full bg-gray-100 flex items-center justify-center">
+                            {crop.imageUrl ? (
+                               <Image src={crop.imageUrl} alt={crop.name} width={200} height={200} className="w-full h-full object-cover" />
+                            ) : crop.icon ? (
+                                <span className="text-6xl">{crop.icon}</span>
+                            ): (
+                               <ImageIcon className="w-12 h-12 text-gray-400" />
+                            )}
+                        </div>
+                    </CardContent>
+                    <CardFooter className="p-3 bg-white/80 backdrop-blur-sm">
+                        <p className="font-semibold w-full truncate">{crop.name}</p>
+                    </CardFooter>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <Button 
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleRemoveCrop(crop)} 
+                            disabled={isSubmitting}
+                            className="w-8 h-8"
+                          >
+                            <XIcon className="w-4 h-4" />
+                          </Button>
+                    </div>
+                </Card>
               ))}
             </div>
           ) : (
-            <p>
-              You haven't added any crops to your profile yet. Add your first crop above.
-            </p>
+             <Card>
+                <CardContent className="pt-6">
+                    <p>You haven't added any crops to your profile yet. Add your first crop above.</p>
+                </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }
