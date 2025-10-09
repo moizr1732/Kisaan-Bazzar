@@ -93,8 +93,6 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
 
-    // Set a different loading state if needed, or share `isSubmitting`
-    // For now, we disable all actions while any operation is in progress.
     setIsSubmitting(true); 
     try {
         const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
@@ -136,7 +134,7 @@ function MyCropsContent() {
                     className="flex-grow"
                 />
                 <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting}>
-                   <Upload className="mr-2" />
+                   <Upload className="mr-2 h-4 w-4" />
                    Upload Image
                 </Button>
                 <input
@@ -149,14 +147,14 @@ function MyCropsContent() {
             </div>
             {imagePreview && (
                 <div className="relative w-32 h-32">
-                    <Image src={imagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md" />
+                    <Image src={imagePreview} alt="Preview" width={128} height={128} objectFit="cover" className="rounded-md" />
                     <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
                         <XIcon className="h-4 w-4"/>
                     </Button>
                 </div>
             )}
              <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()} className="w-full sm:w-auto">
-                {isSubmitting ? <Loader2 className="animate-spin" /> : "Add Crop"}
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add Crop"}
             </Button>
         </CardContent>
       </Card>
@@ -217,3 +215,5 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
+
+    
