@@ -28,6 +28,8 @@ function MyCropsContent() {
   useEffect(() => {
     if (userProfile?.crops) {
       setCrops(userProfile.crops);
+    } else {
+      setCrops([]);
     }
   }, [userProfile]);
 
@@ -75,8 +77,6 @@ function MyCropsContent() {
         
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
-        setCrops(updatedCrops);
-
         await fetchUserProfile(user);
         
         toast({
@@ -109,9 +109,7 @@ function MyCropsContent() {
     try {
         const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-
-        setCrops(updatedCrops);
-
+        
         await fetchUserProfile(user);
         
         toast({
