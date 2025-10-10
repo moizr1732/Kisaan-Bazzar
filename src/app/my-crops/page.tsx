@@ -46,6 +46,8 @@ function MyCropsContent() {
     if (!user || !newCropName.trim()) return;
 
     setIsSubmitting(true);
+    let originalCrops = crops; // Keep a copy in case of error
+
     try {
         const trimmedCropName = newCropName.trim();
         const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
@@ -56,6 +58,7 @@ function MyCropsContent() {
                 title: "Crop already exists",
                 description: `"${trimmedCropName}" is already in your list.`,
             });
+            // This return will now hit the finally block
             return;
         }
 
@@ -81,6 +84,7 @@ function MyCropsContent() {
         
         // Optimistically update UI first
         setCrops(updatedCrops);
+        originalCrops = crops; // Update original crops after optimistic update
 
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
@@ -104,7 +108,7 @@ function MyCropsContent() {
             description: error.message || "Could not add the crop. Please try again.",
         });
         // Revert UI change on error
-        setCrops(crops);
+        setCrops(originalCrops);
     } finally {
         setIsSubmitting(false);
     }
@@ -118,6 +122,7 @@ function MyCropsContent() {
     
     // Optimistically update UI
     setCrops(updatedCrops);
+    setIsSubmitting(true);
 
     try {
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
@@ -134,6 +139,8 @@ function MyCropsContent() {
         });
         // Revert UI change on error
         setCrops(originalCrops);
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
@@ -248,5 +255,3 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
-
-    
