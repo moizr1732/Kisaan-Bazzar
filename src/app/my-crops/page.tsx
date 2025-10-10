@@ -123,6 +123,7 @@ function MyCropsContent() {
     const originalCrops = [...crops];
     const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
     
+    // Optimistically update UI
     setCrops(updatedCrops);
     
     try {
@@ -139,6 +140,7 @@ function MyCropsContent() {
             title: "Error removing crop",
             description: error.message || "Could not remove the crop. Please try again.",
         });
+        // Revert UI on failure
         setCrops(originalCrops);
     }
   };
@@ -273,5 +275,3 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
-
-    
