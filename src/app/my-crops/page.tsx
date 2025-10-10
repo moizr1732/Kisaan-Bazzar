@@ -44,9 +44,8 @@ function MyCropsContent() {
     try {
         const trimmedCropName = newCropName.trim();
         const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
-        const currentCrops = userProfile?.crops || [];
 
-        if (currentCrops.some(crop => crop.slug === cropSlug)) {
+        if (crops.some(crop => crop.slug === cropSlug)) {
             toast({
                 variant: "destructive",
                 title: "Crop already exists",
@@ -64,10 +63,12 @@ function MyCropsContent() {
 
         if (!imagePreview) {
           const iconResult = await getIconForCrop({ cropName: trimmedCropName });
-          newCrop.icon = iconResult.icon;
+          if(iconResult.icon) {
+            newCrop.icon = iconResult.icon;
+          }
         }
         
-        const updatedCrops = [...currentCrops, newCrop];
+        const updatedCrops = [...crops, newCrop];
         
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
@@ -101,8 +102,7 @@ function MyCropsContent() {
     
     setIsSubmitting(true); 
     try {
-        const currentCrops = userProfile?.crops || [];
-        const updatedCrops = currentCrops.filter(crop => crop.slug !== cropToRemove.slug);
+        const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
         await fetchUserProfile(user);
