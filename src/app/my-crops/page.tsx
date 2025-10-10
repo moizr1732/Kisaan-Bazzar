@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -40,21 +40,21 @@ function MyCropsContent() {
   const handleAddCrop = async () => {
     if (!user || !newCropName.trim()) return;
 
-    const trimmedCropName = newCropName.trim();
-    const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
-    const currentCrops = userProfile?.crops || [];
-
-    if (currentCrops.some(crop => crop.slug === cropSlug)) {
-        toast({
-            variant: "destructive",
-            title: "Crop already exists",
-            description: `"${trimmedCropName}" is already in your list.`,
-        });
-        return;
-    }
-
     setIsSubmitting(true);
     try {
+        const trimmedCropName = newCropName.trim();
+        const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
+        const currentCrops = userProfile?.crops || [];
+
+        if (currentCrops.some(crop => crop.slug === cropSlug)) {
+            toast({
+                variant: "destructive",
+                title: "Crop already exists",
+                description: `"${trimmedCropName}" is already in your list.`,
+            });
+            return;
+        }
+
         let newCrop: Crop = {
           name: trimmedCropName,
           slug: cropSlug,
@@ -71,7 +71,6 @@ function MyCropsContent() {
         
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
-        // Refetch the user profile to get the latest data
         await fetchUserProfile(user);
         
         toast({
@@ -79,7 +78,6 @@ function MyCropsContent() {
             description: `"${trimmedCropName}" has been added to your profile.`,
         });
         
-        // Reset form
         setNewCropName("");
         setNewCropPrice("");
         setImagePreview(null);
@@ -101,10 +99,9 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
-    const currentCrops = userProfile?.crops || [];
-
     setIsSubmitting(true); 
     try {
+        const currentCrops = userProfile?.crops || [];
         const updatedCrops = currentCrops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
