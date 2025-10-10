@@ -14,6 +14,16 @@ import { db } from "@/lib/firebase";
 import { getIconForCrop } from "@/ai/flows/get-icon-for-crop";
 import type { Crop } from "@/lib/types";
 import Image from "next/image";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
@@ -23,6 +33,7 @@ function MyCropsContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -46,70 +57,63 @@ function MyCropsContent() {
     if (!user || !newCropName.trim()) return;
 
     setIsSubmitting(true);
-    const originalCrops = [...crops];
-
     try {
-        const trimmedCropName = newCropName.trim();
-        const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
+      const trimmedCropName = newCropName.trim();
+      const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
 
-        if (crops.some(crop => crop.slug === cropSlug)) {
-            toast({
-                variant: "destructive",
-                title: "Crop already exists",
-                description: `"${trimmedCropName}" is already in your list.`,
-            });
-            // This return will now hit the finally block
-            return;
-        }
-
-        let newCrop: Crop = {
-          name: trimmedCropName,
-          slug: cropSlug,
-          price: newCropPrice.trim() || undefined,
-          imageUrl: imagePreview || undefined,
-        };
-        
-        if (!imagePreview) {
-          try {
-            const iconResult = await getIconForCrop({ cropName: trimmedCropName });
-            if(iconResult.icon) {
-              newCrop.icon = iconResult.icon;
-            }
-          } catch (aiError) {
-            console.error("AI icon generation failed, proceeding without icon:", aiError);
-          }
-        }
-        
-        const updatedCrops = [...crops, newCrop];
-        
-        // Optimistically update UI first
-        setCrops(updatedCrops);
-
-        await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-        
+      if (crops.some(crop => crop.slug === cropSlug)) {
         toast({
-            title: "Crop Added",
-            description: `"${trimmedCropName}" has been added to your profile.`,
+          variant: "destructive",
+          title: "Crop already exists",
+          description: `"${trimmedCropName}" is already in your list.`,
         });
-        
-        // Clear inputs after successful add
-        setNewCropName("");
-        setNewCropPrice("");
-        setImagePreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
+        return;
+      }
+
+      let newCrop: Crop = {
+        name: trimmedCropName,
+        slug: cropSlug,
+        price: newCropPrice.trim() || undefined,
+        imageUrl: imagePreview || undefined,
+      };
+      
+      if (!imagePreview) {
+        try {
+          const iconResult = await getIconForCrop({ cropName: trimmedCropName });
+          if(iconResult.icon) {
+            newCrop.icon = iconResult.icon;
+          }
+        } catch (aiError) {
+          console.error("AI icon generation failed, proceeding without icon:", aiError);
         }
+      }
+      
+      const updatedCrops = [...crops, newCrop];
+      
+      await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
+      await fetchUserProfile(user);
+      
+      toast({
+          title: "Crop Added",
+          description: `"${trimmedCropName}" has been added to your profile.`,
+      });
+      
+      setNewCropName("");
+      setNewCropPrice("");
+      setImagePreview(null);
+      if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+      }
+      setIsSheetOpen(false);
 
     } catch (error: any) {
-        toast({
-            variant: "destructive",
-            title: "Error adding crop",
-            description: error.message || "Could not add the crop. Please try again.",
-        });
-        // Revert UI change on error
-        setCrops(originalCrops);
+      toast({
+          variant: "destructive",
+          title: "Error adding crop",
+          description: error.message || "Could not add the crop. Please try again.",
+      });
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -119,12 +123,11 @@ function MyCropsContent() {
     const originalCrops = [...crops];
     const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
     
-    // Optimistically update UI
     setCrops(updatedCrops);
-    setIsSubmitting(true);
-
+    
     try {
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
+        await fetchUserProfile(user);
         
         toast({
             title: "Crop Removed",
@@ -136,45 +139,62 @@ function MyCropsContent() {
             title: "Error removing crop",
             description: error.message || "Could not remove the crop. Please try again.",
         });
-        // Revert UI change on error
         setCrops(originalCrops);
-    } finally {
-        setIsSubmitting(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-headline">My Crops</h1>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <Plus className="text-primary" />
-                Add a New Crop
-            </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <Input 
-                    placeholder="Crop Name, e.g., Wheat"
-                    value={newCropName}
-                    onChange={(e) => setNewCropName(e.target.value)}
-                    disabled={isSubmitting}
-                />
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold font-headline">My Crops</h1>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Add New Crop
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Add a New Crop</SheetTitle>
+              <SheetDescription>
+                Add a crop to your profile to track its price and receive relevant advisories.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="py-4 space-y-4">
+              <div className="space-y-2">
+                 <label className="text-sm font-medium text-muted-foreground">Crop Name</label>
                  <Input 
-                    placeholder="Price (per 40kg), e.g., 2400"
-                    value={newCropPrice}
-                    onChange={(e) => setNewCropPrice(e.target.value)}
-                    disabled={isSubmitting}
-                    type="number"
-                />
-            </div>
-             <div className="flex flex-col sm:flex-row gap-2">
-                <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting} className="w-full sm:w-auto">
-                   <Upload className="mr-2 h-4 w-4" />
-                   Upload Image (Optional)
-                </Button>
+                      placeholder="e.g., Wheat"
+                      value={newCropName}
+                      onChange={(e) => setNewCropName(e.target.value)}
+                      disabled={isSubmitting}
+                  />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Price (per 40kg, optional)</label>
+                <Input 
+                      placeholder="e.g., 2400"
+                      value={newCropPrice}
+                      onChange={(e) => setNewCropPrice(e.target.value)}
+                      disabled={isSubmitting}
+                      type="number"
+                  />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Image (optional)</label>
+                {imagePreview ? (
+                    <div className="relative w-32 h-32">
+                        <Image src={imagePreview} alt="Preview" width={128} height={128} className="rounded-md object-cover" />
+                        <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
+                            <XIcon className="h-4 w-4"/>
+                        </Button>
+                    </div>
+                ) : (
+                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting} className="w-full">
+                     <Upload className="mr-2 h-4 w-4" />
+                     Upload Image
+                  </Button>
+                )}
                 <input
                     type="file"
                     ref={fileInputRef}
@@ -182,20 +202,19 @@ function MyCropsContent() {
                     className="hidden"
                     accept="image/*"
                 />
+              </div>
             </div>
-            {imagePreview && (
-                <div className="relative w-32 h-32">
-                    <Image src={imagePreview} alt="Preview" width={128} height={128} className="rounded-md object-cover" />
-                    <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
-                        <XIcon className="h-4 w-4"/>
-                    </Button>
-                </div>
-            )}
-             <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()} className="w-full sm:w-auto">
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add Crop"}
-            </Button>
-        </CardContent>
-      </Card>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </SheetClose>
+              <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()}>
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Crop"}
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <div>
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -238,7 +257,7 @@ function MyCropsContent() {
           ) : (
              <Card>
                 <CardContent className="pt-6">
-                    <p>You haven't added any crops to your profile yet. Add your first crop above.</p>
+                    <p>You haven't added any crops to your profile yet. Add your first crop to get started.</p>
                 </CardContent>
             </Card>
           )}
