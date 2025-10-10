@@ -20,6 +20,12 @@ const MultilingualVoiceInteractionInputSchema = z.object({
         'A voice recording of the user query, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
   textCommand: z.string().optional().describe('A text-based user query.'),
+  imageCommand: z
+    .string()
+    .optional()
+    .describe(
+        'An image of the user query, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
+    ),
   userProfile: z.string().optional().describe('Optional user profile information to personalize the response.'),
   location: z.string().optional().describe('Optional user location to provide location-specific information.'),
   pastInteractions: z.string().optional().describe('Optional history of past interactions to maintain context.'),
@@ -48,8 +54,14 @@ Maintain context during conversations for more natural and relevant interactions
 
 {{#if textCommand}}
 User command: {{{textCommand}}}
-{{else}}
+{{/if}}
+
+{{#if voiceCommand}}
 Voice Command: {{media url=voiceCommand}}
+{{/if}}
+
+{{#if imageCommand}}
+Image: {{media url=imageCommand}}
 {{/if}}
 
 {{#if userProfile}}
@@ -75,10 +87,12 @@ const multilingualVoiceInteractionFlow = ai.defineFlow(
     outputSchema: MultilingualVoiceInteractionOutputSchema,
   },
   async input => {
-    if (!input.voiceCommand && !input.textCommand) {
-      throw new Error('Either voiceCommand or textCommand must be provided.');
+    if (!input.voiceCommand && !input.textCommand && !input.imageCommand) {
+      throw new Error('Either voiceCommand, textCommand or imageCommand must be provided.');
     }
     const {output} = await prompt(input);
     return output!;
   }
 );
+
+    
