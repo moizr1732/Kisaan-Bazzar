@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import Image from "next/image";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
+  const [crops, setCrops] = useState<Crop[]>([]);
   const [newCropName, setNewCropName] = useState("");
   const [newCropPrice, setNewCropPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +25,11 @@ function MyCropsContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const crops = userProfile?.crops || [];
+  useEffect(() => {
+    if (userProfile?.crops) {
+      setCrops(userProfile.crops);
+    }
+  }, [userProfile?.crops]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -60,25 +65,31 @@ function MyCropsContent() {
           price: newCropPrice.trim() || undefined,
           imageUrl: imagePreview || undefined,
         };
-
+        
         if (!imagePreview) {
-          const iconResult = await getIconForCrop({ cropName: trimmedCropName });
-          if(iconResult.icon) {
-            newCrop.icon = iconResult.icon;
+          try {
+            const iconResult = await getIconForCrop({ cropName: trimmedCropName });
+            if(iconResult.icon) {
+              newCrop.icon = iconResult.icon;
+            }
+          } catch (aiError) {
+            console.error("AI icon generation failed, proceeding without icon:", aiError);
           }
         }
         
         const updatedCrops = [...crops, newCrop];
         
+        // Optimistically update UI first
+        setCrops(updatedCrops);
+
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-        
-        await fetchUserProfile(user);
         
         toast({
             title: "Crop Added",
             description: `"${trimmedCropName}" has been added to your profile.`,
         });
         
+        // Clear inputs after successful add
         setNewCropName("");
         setNewCropPrice("");
         setImagePreview(null);
@@ -92,6 +103,8 @@ function MyCropsContent() {
             title: "Error adding crop",
             description: error.message || "Could not add the crop. Please try again.",
         });
+        // Revert UI change on error
+        setCrops(crops);
     } finally {
         setIsSubmitting(false);
     }
@@ -100,12 +113,14 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
-    setIsSubmitting(true); 
+    const originalCrops = crops;
+    const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
+    
+    // Optimistically update UI
+    setCrops(updatedCrops);
+
     try {
-        const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-        
-        await fetchUserProfile(user);
         
         toast({
             title: "Crop Removed",
@@ -117,8 +132,8 @@ function MyCropsContent() {
             title: "Error removing crop",
             description: error.message || "Could not remove the crop. Please try again.",
         });
-    } finally {
-        setIsSubmitting(false);
+        // Revert UI change on error
+        setCrops(originalCrops);
     }
   };
 
@@ -233,3 +248,5 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
+
+    
