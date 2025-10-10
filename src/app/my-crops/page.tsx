@@ -23,15 +23,8 @@ function MyCropsContent() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const [crops, setCrops] = useState<Crop[]>([]);
 
-  useEffect(() => {
-    if (userProfile?.crops) {
-      setCrops(userProfile.crops);
-    } else {
-      setCrops([]);
-    }
-  }, [userProfile]);
+  const crops = userProfile?.crops || [];
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -49,8 +42,9 @@ function MyCropsContent() {
 
     const trimmedCropName = newCropName.trim();
     const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
+    const currentCrops = userProfile?.crops || [];
 
-    if (crops.some(crop => crop.slug === cropSlug)) {
+    if (currentCrops.some(crop => crop.slug === cropSlug)) {
         toast({
             variant: "destructive",
             title: "Crop already exists",
@@ -73,10 +67,11 @@ function MyCropsContent() {
           newCrop.icon = iconResult.icon;
         }
         
-        const updatedCrops = [...crops, newCrop];
+        const updatedCrops = [...currentCrops, newCrop];
         
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
+        // Refetch the user profile to get the latest data
         await fetchUserProfile(user);
         
         toast({
@@ -84,6 +79,7 @@ function MyCropsContent() {
             description: `"${trimmedCropName}" has been added to your profile.`,
         });
         
+        // Reset form
         setNewCropName("");
         setNewCropPrice("");
         setImagePreview(null);
@@ -104,10 +100,12 @@ function MyCropsContent() {
 
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
+    
+    const currentCrops = userProfile?.crops || [];
 
     setIsSubmitting(true); 
     try {
-        const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
+        const updatedCrops = currentCrops.filter(crop => crop.slug !== cropToRemove.slug);
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
         await fetchUserProfile(user);
