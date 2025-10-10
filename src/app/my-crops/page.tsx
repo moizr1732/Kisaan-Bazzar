@@ -37,6 +37,7 @@ function MyCropsContent() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Initialize or sync local state when userProfile.crops changes
     if (userProfile?.crops) {
       setCrops(userProfile.crops);
     }
@@ -57,67 +58,87 @@ function MyCropsContent() {
     if (!user || !newCropName.trim()) return;
 
     setIsSubmitting(true);
-    try {
-      const trimmedCropName = newCropName.trim();
-      const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
+    
+    const trimmedCropName = newCropName.trim();
+    const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
 
-      if (crops.some(crop => crop.slug === cropSlug)) {
+    if (crops.some(crop => crop.slug === cropSlug)) {
         toast({
           variant: "destructive",
           title: "Crop already exists",
           description: `"${trimmedCropName}" is already in your list.`,
         });
+        setIsSubmitting(false);
         return;
-      }
+    }
+    
+    // Construct the new crop object first.
+    let newCrop: Crop = {
+      name: trimmedCropName,
+      slug: cropSlug,
+      price: newCropPrice.trim() || undefined,
+      imageUrl: imagePreview || undefined,
+    };
 
-      let newCrop: Crop = {
-        name: trimmedCropName,
-        slug: cropSlug,
-        price: newCropPrice.trim() || undefined,
-        imageUrl: imagePreview || undefined,
-      };
-      
-      if (!imagePreview) {
+    // Store the current state for potential rollback
+    const originalCrops = [...crops];
+    
+    // Optimistically update UI
+    const updatedCrops = [...crops, newCrop];
+    setCrops(updatedCrops);
+    
+    // Close the sheet and reset the form
+    setIsSheetOpen(false);
+    setNewCropName("");
+    setNewCropPrice("");
+    setImagePreview(null);
+    if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
+
+    try {
+      // Step 2: If no image, get an icon from AI
+      if (!newCrop.imageUrl) {
         try {
           const iconResult = await getIconForCrop({ cropName: trimmedCropName });
           if(iconResult.icon) {
             newCrop.icon = iconResult.icon;
+            // Update the crop in the optimistic state with the new icon
+            const finalCrops = crops.map(c => c.slug === newCrop.slug ? newCrop : c);
+            if(!finalCrops.find(c => c.slug === newCrop.slug)) {
+                finalCrops.push(newCrop)
+            }
+            setCrops(finalCrops);
           }
         } catch (aiError) {
           console.error("AI icon generation failed, proceeding without icon:", aiError);
         }
       }
       
-      const updatedCrops = [...crops, newCrop];
+      const finalCropList = [...originalCrops, newCrop];
       
-      await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
+      // Step 3: Save to Firestore
+      await setDoc(doc(db, "users", user.uid), { crops: finalCropList }, { merge: true });
       
-      // Directly update local state to guarantee UI refresh
-      setCrops(updatedCrops);
-
-      // Fetch profile in the background to keep context updated
-      fetchUserProfile(user);
-      
+      // Step 4: Show success notification
       toast({
           title: "Crop Added",
           description: `"${trimmedCropName}" has been added to your profile.`,
       });
       
-      setNewCropName("");
-      setNewCropPrice("");
-      setImagePreview(null);
-      if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-      }
-      setIsSheetOpen(false);
+      // Step 5: Fetch profile in the background to ensure context is updated everywhere
+      await fetchUserProfile(user);
 
     } catch (error: any) {
+      // Step 6: Rollback on error
       toast({
           variant: "destructive",
           title: "Error adding crop",
           description: error.message || "Could not add the crop. Please try again.",
       });
+      setCrops(originalCrops); // Revert UI to the original state
     } finally {
+      // Step 7: Always reset submitting state
       setIsSubmitting(false);
     }
   };
@@ -133,13 +154,15 @@ function MyCropsContent() {
     
     try {
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-        // Fetch profile in the background to keep context updated
-        fetchUserProfile(user);
         
         toast({
             title: "Crop Removed",
             description: `"${cropToRemove.name}" has been removed from your profile.`,
         });
+
+        // Fetch profile in the background to keep context updated
+        await fetchUserProfile(user);
+
     } catch (error: any) {
         toast({
             variant: "destructive",
