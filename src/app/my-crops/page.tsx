@@ -9,8 +9,6 @@ import { Leaf, Plus, X as XIcon, Loader2, Image as ImageIcon, Upload } from "luc
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { getIconForCrop } from "@/ai/flows/get-icon-for-crop";
 import type { Crop } from "@/lib/types";
 import Image from "next/image";
@@ -113,7 +111,7 @@ function MyCropsContent() {
         }
         
         // Fetch profile in the background to ensure context is updated elsewhere
-        fetchUserProfile(user);
+        await fetchUserProfile(user);
 
     } catch (error: any) {
       toast({
@@ -145,7 +143,7 @@ function MyCropsContent() {
         });
 
         // Fetch profile in the background to keep context updated
-        fetchUserProfile(user);
+        await fetchUserProfile(user);
 
     } catch (error: any) {
         toast({
