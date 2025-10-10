@@ -127,12 +127,12 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
-    setIsSubmitting(true);
     const originalCrops = [...crops];
     const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
     
     // Optimistically update UI
     setCrops(updatedCrops);
+    setIsSubmitting(true);
     
     try {
         await updateUserCrops(user.uid, updatedCrops);
@@ -288,3 +288,5 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
+
+    
