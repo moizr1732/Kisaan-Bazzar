@@ -91,7 +91,12 @@ function MyCropsContent() {
       const updatedCrops = [...crops, newCrop];
       
       await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-      await fetchUserProfile(user);
+      
+      // Directly update local state to guarantee UI refresh
+      setCrops(updatedCrops);
+
+      // Fetch profile in the background to keep context updated
+      fetchUserProfile(user);
       
       toast({
           title: "Crop Added",
@@ -128,7 +133,8 @@ function MyCropsContent() {
     
     try {
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
-        await fetchUserProfile(user);
+        // Fetch profile in the background to keep context updated
+        fetchUserProfile(user);
         
         toast({
             title: "Crop Removed",
@@ -208,7 +214,7 @@ function MyCropsContent() {
             </div>
             <SheetFooter>
               <SheetClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" disabled={isSubmitting}>Cancel</Button>
               </SheetClose>
               <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Crop"}
