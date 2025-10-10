@@ -46,7 +46,7 @@ function MyCropsContent() {
     if (!user || !newCropName.trim()) return;
 
     setIsSubmitting(true);
-    let originalCrops = crops; // Keep a copy in case of error
+    const originalCrops = [...crops];
 
     try {
         const trimmedCropName = newCropName.trim();
@@ -84,7 +84,6 @@ function MyCropsContent() {
         
         // Optimistically update UI first
         setCrops(updatedCrops);
-        originalCrops = crops; // Update original crops after optimistic update
 
         await setDoc(doc(db, "users", user.uid), { crops: updatedCrops }, { merge: true });
         
@@ -117,7 +116,7 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
-    const originalCrops = crops;
+    const originalCrops = [...crops];
     const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
     
     // Optimistically update UI
@@ -255,3 +254,5 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
+
+    
