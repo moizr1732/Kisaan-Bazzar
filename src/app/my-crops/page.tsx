@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -79,6 +80,7 @@ function MyCropsContent() {
               title: "Crop already exists",
               description: `"${trimmedCropName}" is already in your list.`,
             });
+            setIsSubmitting(false);
             return;
         }
         
@@ -151,7 +153,7 @@ function MyCropsContent() {
             description: error.message || "Could not remove the crop. Please try again.",
         });
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
