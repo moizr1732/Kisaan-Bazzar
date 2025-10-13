@@ -26,7 +26,7 @@ import { updateUserCrops } from "@/services/crop.service";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
-  const [crops, setCrops] = useState<Crop[]>([]);
+  const [crops, setCrops] = useState<Crop[]>(userProfile?.crops || []);
   const [newCropName, setNewCropName] = useState("");
   const [newCropPrice, setNewCropPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,7 @@ function MyCropsContent() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Initialize or sync local state when userProfile.crops changes
+    // Sync local state when userProfile.crops changes from an external source
     if (userProfile?.crops) {
       setCrops(userProfile.crops);
     }
@@ -52,6 +52,16 @@ function MyCropsContent() {
       reader.readAsDataURL(file);
     }
   };
+
+  const resetForm = () => {
+      setNewCropName("");
+      setNewCropPrice("");
+      setImagePreview(null);
+      if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+      }
+      setIsSheetOpen(false);
+  }
 
   const handleAddCrop = async () => {
     if (!user || !newCropName.trim()) return;
@@ -101,14 +111,7 @@ function MyCropsContent() {
             description: `"${trimmedCropName}" has been added to your profile.`,
         });
         
-        // Reset form and close sheet
-        setIsSheetOpen(false);
-        setNewCropName("");
-        setNewCropPrice("");
-        setImagePreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
+        resetForm();
         
         // Fetch profile in the background to ensure context is updated elsewhere
         await fetchUserProfile(user);
@@ -127,16 +130,16 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
-    const originalCrops = [...crops];
-    const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
-    
-    // Optimistically update UI
-    setCrops(updatedCrops);
     setIsSubmitting(true);
     
     try {
+        const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
+        
         await updateUserCrops(user.uid, updatedCrops);
         
+        // Update local state after successful removal
+        setCrops(updatedCrops);
+
         toast({
             title: "Crop Removed",
             description: `"${cropToRemove.name}" has been removed from your profile.`,
@@ -151,8 +154,6 @@ function MyCropsContent() {
             title: "Error removing crop",
             description: error.message || "Could not remove the crop. Please try again.",
         });
-        // Revert UI on failure
-        setCrops(originalCrops);
     } finally {
         setIsSubmitting(false);
     }
