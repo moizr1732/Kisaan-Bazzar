@@ -23,17 +23,22 @@ export async function updateUserProfile(
     throw new Error('User ID is required to update a profile.');
   }
 
-  // Create a copy of the data to safely modify
-  const dataToSave = { ...profileData };
-
-  // Firestore does not allow `undefined` values.
-  // We need to remove any keys that have an undefined value.
-  Object.keys(dataToSave).forEach(keyStr => {
-    const key = keyStr as keyof typeof dataToSave;
-    if (dataToSave[key] === undefined) {
-      delete dataToSave[key];
+  // Create a clean object and only add defined values.
+  // This is a robust way to prevent Firestore "undefined" errors.
+  const dataToSave: { [key: string]: any } = {};
+  for (const key in profileData) {
+    if (Object.prototype.hasOwnProperty.call(profileData, key)) {
+      const value = profileData[key as keyof typeof profileData];
+      if (value !== undefined) {
+        dataToSave[key] = value;
+      }
     }
-  });
+  }
+
+  // Do not proceed if there is nothing to save.
+  if (Object.keys(dataToSave).length === 0) {
+    return;
+  }
 
   const userDocRef = doc(db, 'users', userId);
   

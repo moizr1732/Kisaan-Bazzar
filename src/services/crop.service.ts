@@ -22,7 +22,22 @@ export async function updateUserCrops(
     throw new Error('User ID is required to update crops.');
   }
   const userDocRef = doc(db, 'users', userId);
-  const dataToSave = { crops: crops };
+  
+  // Ensure we don't save undefined values inside the crop array
+  const sanitizedCrops = crops.map(crop => {
+    const newCrop: { [key: string]: any } = {};
+    for (const key in crop) {
+      if (Object.prototype.hasOwnProperty.call(crop, key)) {
+        const value = crop[key as keyof typeof crop];
+        if (value !== undefined) {
+          newCrop[key] = value;
+        }
+      }
+    }
+    return newCrop as Crop;
+  });
+
+  const dataToSave = { crops: sanitizedCrops };
 
   setDoc(userDocRef, dataToSave, { merge: true })
     .catch((serverError) => {
