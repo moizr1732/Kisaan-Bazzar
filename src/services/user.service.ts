@@ -28,9 +28,10 @@ export async function updateUserProfile(
 
   // Firestore does not allow `undefined` values.
   // We need to remove any keys that have an undefined value.
-  Object.keys(dataToSave).forEach(key => {
-    if (dataToSave[key as keyof typeof dataToSave] === undefined) {
-      delete dataToSave[key as keyof typeof dataToSave];
+  Object.keys(dataToSave).forEach(keyStr => {
+    const key = keyStr as keyof typeof dataToSave;
+    if (dataToSave[key] === undefined) {
+      delete dataToSave[key];
     }
   });
 
