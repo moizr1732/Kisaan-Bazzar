@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Leaf, Plus, X as XIcon, Loader2, ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +35,6 @@ function MyCropsContent() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Sync local state when userProfile.crops changes from any source
     if (userProfile?.crops) {
       setCrops(userProfile.crops);
     } else {
@@ -71,16 +69,16 @@ function MyCropsContent() {
     setIsSubmitting(true);
     
     try {
+        const currentCrops = userProfile?.crops || [];
         const trimmedCropName = newCropName.trim();
         const cropSlug = trimmedCropName.toLowerCase().replace(/\s+/g, '-');
 
-        if (crops.some(crop => crop.slug === cropSlug)) {
+        if (currentCrops.some(crop => crop.slug === cropSlug)) {
             toast({
               variant: "destructive",
               title: "Crop already exists",
               description: `"${trimmedCropName}" is already in your list.`,
             });
-            setIsSubmitting(false);
             return;
         }
         
@@ -102,12 +100,10 @@ function MyCropsContent() {
             }
         }
         
-        const updatedCrops = [...crops, newCrop];
+        const updatedCrops = [...currentCrops, newCrop];
         
         await updateUserCrops(user.uid, updatedCrops);
       
-        // Fetch profile to ensure the entire app context is updated.
-        // The useEffect will handle updating the local `crops` state from the new profile.
         await fetchUserProfile(user);
 
         toast({
@@ -124,7 +120,6 @@ function MyCropsContent() {
           description: error.message || "Could not add the crop. Please try again.",
       });
     } finally {
-      // This will run regardless of success or failure
       setIsSubmitting(false);
     }
   };
@@ -132,18 +127,16 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
-    // Prevent multiple clicks while processing
     if (isSubmitting) return;
 
     setIsSubmitting(true);
     
     try {
-        const updatedCrops = crops.filter(crop => crop.slug !== cropToRemove.slug);
+        const currentCrops = userProfile?.crops || [];
+        const updatedCrops = currentCrops.filter(crop => crop.slug !== cropToRemove.slug);
         
         await updateUserCrops(user.uid, updatedCrops);
         
-        // Fetch profile to get the latest source of truth.
-        // The useEffect will handle updating the local state.
         await fetchUserProfile(user);
 
         toast({
@@ -292,5 +285,3 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
-
-    
