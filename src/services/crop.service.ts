@@ -1,9 +1,11 @@
 
 'use server';
 
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Crop } from '@/lib/types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * Updates the 'crops' array for a specific user in Firestore.
@@ -20,5 +22,16 @@ export async function updateUserCrops(
     throw new Error('User ID is required to update crops.');
   }
   const userDocRef = doc(db, 'users', userId);
-  await setDoc(userDocRef, { crops: crops }, { merge: true });
+  const dataToSave = { crops: crops };
+
+  setDoc(userDocRef, dataToSave, { merge: true })
+    .catch((serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: userDocRef.path,
+        operation: 'update',
+        requestResourceData: dataToSave,
+      });
+
+      errorEmitter.emit('permission-error', permissionError);
+    });
 }

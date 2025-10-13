@@ -6,6 +6,7 @@ import { User, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEma
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { UserProfile } from '@/lib/types';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 interface AuthContextType {
   user: User | null;
@@ -41,6 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         crops: [],
         phoneNumber: '',
         farmSize: undefined,
+        photoURL: user.photoURL || undefined,
       };
       await setDoc(docRef, newProfile);
       setUserProfile(newProfile);
@@ -87,5 +89,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     fetchUserProfile
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      <FirebaseErrorListener />
+      {children}
+    </AuthContext.Provider>
+  );
 };

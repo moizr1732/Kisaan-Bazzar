@@ -4,6 +4,8 @@
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { UserProfile } from '@/lib/types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * Updates a user's profile in Firestore.
@@ -33,5 +35,15 @@ export async function updateUserProfile(
   });
 
   const userDocRef = doc(db, 'users', userId);
-  await setDoc(userDocRef, dataToSave, { merge: true });
+  
+  setDoc(userDocRef, dataToSave, { merge: true })
+    .catch((serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'update',
+            requestResourceData: dataToSave,
+        });
+
+        errorEmitter.emit('permission-error', permissionError);
+    });
 }
