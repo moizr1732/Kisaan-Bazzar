@@ -38,13 +38,11 @@ export default function LoginPage() {
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case 'auth/invalid-credential':
+          case 'auth/wrong-password':
             description = "Invalid credentials. Please check your email and password.";
             break;
           case 'auth/user-not-found':
             description = "No account found with this email. Please sign up.";
-            break;
-          case 'auth/wrong-password':
-             description = "Incorrect password. Please try again.";
             break;
           default:
             description = "Login failed. Please check your credentials and try again.";
