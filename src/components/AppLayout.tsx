@@ -62,7 +62,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
 
   const getInitials = (name?: string, email?: string) => {
-    if (name) return name.charAt(0).toUpperCase();
+    if (name) return name.split(' ').map(n => n[0]).join('').toUpperCase();
     if (email) return email.charAt(0).toUpperCase();
     return 'A';
   }
@@ -139,6 +139,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
+                    <AvatarImage src={userProfile?.photoURL} alt={userProfile?.name} />
                     <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>

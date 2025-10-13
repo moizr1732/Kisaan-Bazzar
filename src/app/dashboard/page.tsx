@@ -135,31 +135,28 @@ function DashboardContent() {
     }
   }, []);
   
-  useEffect(() => {
+    useEffect(() => {
     async function fetchAlerts() {
-      if (!userProfile || alerts.length > 0) {
-        setLoadingAlerts(false);
-        return;
-      }
-      
-      setLoadingAlerts(true);
-      setAlertsError(null);
+        if (!userProfile) return;
 
-      try {
-        const result = await getDashboardAlerts({
-          location: userProfile.location,
-          crops: userProfile.crops?.map(c => c.name),
-        });
-        setAlerts(result.alerts);
-      } catch (error) {
-        console.error("Error fetching alerts:", error);
-        setAlertsError("Could not load alerts at this time.");
-      } finally {
-        setLoadingAlerts(false);
-      }
+        setLoadingAlerts(true);
+        setAlertsError(null);
+
+        try {
+            const result = await getDashboardAlerts({
+            location: userProfile.location,
+            crops: userProfile.crops?.map(c => c.name),
+            });
+            setAlerts(result.alerts);
+        } catch (error) {
+            console.error("Error fetching alerts:", error);
+            setAlertsError("Could not load alerts at this time.");
+        } finally {
+            setLoadingAlerts(false);
+        }
     }
 
-    if (userProfile) {
+    if (userProfile && alerts.length === 0) {
         fetchAlerts();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,10 +178,10 @@ function DashboardContent() {
   ];
 
   const quickAccessItems = [
-    { label: "My Crops", icon: Leaf, color: "bg-green-500 hover:bg-green-600", action: () => router.push('/my-crops') },
-    { label: "Market Rate", icon: LineChart, color: "bg-yellow-500 hover:bg-yellow-600", action: () => router.push('/market') },
-    { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-500 hover:bg-blue-600", action: () => router.push('/voice-agent') },
-    { label: "History", icon: History, color: "bg-purple-500 hover:bg-purple-600", action: () => router.push('/history') },
+    { label: "My Crops", icon: Leaf, color: "bg-green-100 text-green-800 hover:bg-green-200", action: () => router.push('/my-crops') },
+    { label: "Market Rate", icon: LineChart, color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200", action: () => router.push('/market') },
+    { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-100 text-blue-800 hover:bg-blue-200", action: () => router.push('/voice-agent') },
+    { label: "History", icon: History, color: "bg-purple-100 text-purple-800 hover:bg-purple-200", action: () => router.push('/history') },
   ];
 
   const alertIcons = {
@@ -199,7 +196,8 @@ function DashboardContent() {
         <Logo size="sm" />
         <div className="flex items-center gap-4">
             <Bell className="text-gray-600" />
-            <Avatar className="h-8 w-8">
+             <Avatar className="h-8 w-8">
+                <AvatarImage src={userProfile?.photoURL} alt={userProfile?.name} />
                 <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
             </Avatar>
         </div>
@@ -211,6 +209,7 @@ function DashboardContent() {
           <CardContent className="p-4 flex items-center gap-4">
              <div className="relative">
                 <Avatar className="w-20 h-20 border-4 border-white">
+                    <AvatarImage src={userProfile?.photoURL} alt={userProfile?.name} />
                     <AvatarFallback className="text-3xl">{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
                 </Avatar>
                 <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -240,7 +239,7 @@ function DashboardContent() {
                 <button
                     key={item.label}
                     onClick={item.action}
-                    className={`flex flex-col items-center justify-center p-4 rounded-lg text-white font-semibold space-y-2 transition-colors ${item.color}`}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold space-y-2 transition-colors ${item.color}`}
                 >
                     <item.icon className="w-8 h-8" />
                     <span className="text-sm">{item.label}</span>
@@ -253,7 +252,10 @@ function DashboardContent() {
         <Card className="bg-blue-500 text-white">
             <CardContent className="p-4 flex items-center justify-between">
             {locationError ? (
-                <p>{locationError}</p>
+                 <div className="flex items-center gap-2 text-white">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>{locationError}</span>
+                </div>
             ) : weatherData?.current?.temperature_2m !== undefined ? (
                 <>
                     <div>

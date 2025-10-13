@@ -11,16 +11,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { Loader2, Settings, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, Camera, X as XIcon, Mic } from "lucide-react";
+import { Loader2, Settings, Home, BotMessageSquare, Leaf, BarChart3, UserCircle, Camera, X as XIcon, Mic, Upload } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/Logo";
+import Image from "next/image";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { ProfileSetupModal } from "@/components/profile/ProfileSetupModal";
 import { Badge } from "@/components/ui/badge";
 import AppLayout from "@/components/AppLayout";
-import type { Crop } from "@/lib/types";
+import type { Crop, UserProfile } from "@/lib/types";
+import { updateUserProfile } from "@/services/user.service";
+
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is too short").max(50, "Name is too long"),
@@ -28,6 +29,7 @@ const profileSchema = z.object({
   phoneNumber: z.string().optional(),
   language: z.enum(["en", "ur", "pa", "si", "ps"]),
   crops: z.array(z.custom<Crop>()).optional(),
+  photoURL: z.string().optional(),
   farmSize: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
     z.number().positive("Farm size must be a positive number.").optional()
@@ -44,6 +46,7 @@ function ProfileContent() {
   const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [cropInput, setCropInput] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   
   const form = useForm<ProfileFormValues>({
@@ -54,12 +57,14 @@ function ProfileContent() {
       phoneNumber: "",
       language: "en",
       crops: [],
+      photoURL: "",
       farmSize: undefined,
     },
   });
 
   const { watch, setValue, getValues } = form;
   const crops = watch("crops") || [];
+  const photoURL = watch("photoURL");
 
   useEffect(() => {
     if (userProfile) {
@@ -69,10 +74,22 @@ function ProfileContent() {
         phoneNumber: userProfile.phoneNumber || "",
         language: userProfile.language || "en",
         crops: userProfile.crops || [],
+        photoURL: userProfile.photoURL || "",
         farmSize: userProfile.farmSize || undefined,
       });
     }
   }, [userProfile, form]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setValue("photoURL", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   const handleAddCrop = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && cropInput.trim() !== "") {
@@ -104,16 +121,17 @@ function ProfileContent() {
     }
     setIsSubmitting(true);
     try {
-      const updatedProfile = {
+      const updatedProfile: Partial<UserProfile> = {
         name: data.name,
         location: data.location,
         phoneNumber: data.phoneNumber,
         language: data.language,
         crops: data.crops,
         farmSize: data.farmSize,
+        photoURL: data.photoURL,
       };
 
-      await setDoc(doc(db, "users", user.uid), updatedProfile, { merge: true });
+      await updateUserProfile(user.uid, updatedProfile);
       await fetchUserProfile(user); // Refetch profile to update context
       
       toast({
@@ -152,15 +170,26 @@ function ProfileContent() {
       </header>
 
       <main className="p-4 space-y-6">
-        <div className="flex flex-col items-center space-y-2">
-            <div className="relative">
-                <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                    <AvatarFallback className="text-3xl">{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
-                </Avatar>
-            </div>
-        </div>
-
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="flex flex-col items-center space-y-2">
+                <div className="relative">
+                    <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
+                        <AvatarImage src={photoURL} />
+                        <AvatarFallback className="text-3xl">{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
+                    </Avatar>
+                    <Button type="button" size="icon" className="absolute bottom-0 right-0 rounded-full" onClick={() => fileInputRef.current?.click()}>
+                        <Camera className="w-4 h-4" />
+                    </Button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept="image/*"
+                    />
+                </div>
+            </div>
+
             <div className="text-center">
                 <Button type="button" onClick={() => setIsProfileModalOpen(true)}>
                     <Mic className="mr-2 h-4 w-4" />
