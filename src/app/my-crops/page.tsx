@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Leaf, Plus, X as XIcon, Loader2, ImageIcon, Upload } from "lucide-react";
+import { Leaf, Plus, X as XIcon, Loader2, ImageIcon, Upload, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +23,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { updateUserCrops } from "@/services/crop.service";
+import { useRouter } from "next/navigation";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
@@ -34,6 +35,7 @@ function MyCropsContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     if (userProfile?.crops) {
@@ -41,7 +43,7 @@ function MyCropsContent() {
     } else {
       setCrops([]);
     }
-  }, [userProfile?.crops]);
+  }, [userProfile]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -130,13 +132,13 @@ function MyCropsContent() {
     if (!user) return;
     
     if (isSubmitting) return;
+    const originalCrops = userProfile?.crops || [];
 
-    setIsSubmitting(true);
+    // Optimistic UI update
+    const updatedCrops = originalCrops.filter(crop => crop.slug !== cropToRemove.slug);
+    setCrops(updatedCrops);
     
     try {
-        const currentCrops = userProfile?.crops || [];
-        const updatedCrops = currentCrops.filter(crop => crop.slug !== cropToRemove.slug);
-        
         await updateUserCrops(user.uid, updatedCrops);
         
         await fetchUserProfile(user);
@@ -147,87 +149,92 @@ function MyCropsContent() {
         });
 
     } catch (error: any) {
+        // Revert UI on error
+        setCrops(originalCrops);
         toast({
             variant: "destructive",
             title: "Error removing crop",
             description: error.message || "Could not remove the crop. Please try again.",
         });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2">
         <h1 className="text-3xl font-bold font-headline">My Crops</h1>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add New Crop
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Add a New Crop</SheetTitle>
-              <SheetDescription>
-                Add a crop to your profile to track its price and receive relevant advisories.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="py-4 space-y-4">
-              <div className="space-y-2">
-                 <label className="text-sm font-medium text-muted-foreground">Crop Name</label>
-                 <Input 
-                      placeholder="e.g., Wheat"
-                      value={newCropName}
-                      onChange={(e) => setNewCropName(e.target.value)}
-                      disabled={isSubmitting}
-                  />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Price (per 40kg, optional)</label>
-                <Input 
-                      placeholder="e.g., 2400"
-                      value={newCropPrice}
-                      onChange={(e) => setNewCropPrice(e.target.value)}
-                      disabled={isSubmitting}
-                      type="number"
-                  />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Image (optional)</label>
-                {imagePreview ? (
-                    <div className="relative w-32 h-32">
-                        <Image src={imagePreview} alt="Preview" width={128} height={128} className="rounded-md object-cover" />
-                        <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
-                            <XIcon className="h-4 w-4"/>
-                        </Button>
-                    </div>
-                ) : (
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting} className="w-full">
-                     <Upload className="mr-2 h-4 w-4" />
-                     Upload Image
-                  </Button>
-                )}
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    accept="image/*"
-                />
-              </div>
-            </div>
-            <SheetFooter>
-              <SheetClose asChild>
-                <Button variant="outline" disabled={isSubmitting}>Cancel</Button>
-              </SheetClose>
-              <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Crop"}
+        <div className="flex gap-2">
+          {user && <Button variant="outline" size="sm" onClick={() => router.push(`/farmers/${user.uid}`)}>
+            <Eye className="mr-2 h-4 w-4" /> View Public Profile
+          </Button>}
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Add New Crop
               </Button>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Add a New Crop</SheetTitle>
+                <SheetDescription>
+                  Add a crop to your profile to track its price and receive relevant advisories.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="py-4 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Crop Name</label>
+                  <Input 
+                        placeholder="e.g., Wheat"
+                        value={newCropName}
+                        onChange={(e) => setNewCropName(e.target.value)}
+                        disabled={isSubmitting}
+                    />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Price (per 40kg, optional)</label>
+                  <Input 
+                        placeholder="e.g., 2400"
+                        value={newCropPrice}
+                        onChange={(e) => setNewCropPrice(e.target.value)}
+                        disabled={isSubmitting}
+                        type="number"
+                    />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Image (optional)</label>
+                  {imagePreview ? (
+                      <div className="relative w-32 h-32">
+                          <Image src={imagePreview} alt="Preview" width={128} height={128} className="rounded-md object-cover" />
+                          <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setImagePreview(null)}>
+                              <XIcon className="h-4 w-4"/>
+                          </Button>
+                      </div>
+                  ) : (
+                    <Button onClick={() => fileInputRef.current?.click()} variant="outline" disabled={isSubmitting} className="w-full">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Image
+                    </Button>
+                  )}
+                  <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept="image/*"
+                  />
+                </div>
+              </div>
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button variant="outline" disabled={isSubmitting}>Cancel</Button>
+                </SheetClose>
+                <Button onClick={handleAddCrop} disabled={isSubmitting || !newCropName.trim()}>
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Crop"}
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       <div>
@@ -287,3 +294,5 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
+
+    
