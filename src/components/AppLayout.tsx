@@ -132,7 +132,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
             <div className="relative">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')}>
                     <Bell className="h-5 w-5" />
                 </Button>
                 <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0" variant="destructive">3</Badge>

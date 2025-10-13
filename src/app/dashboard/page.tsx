@@ -195,7 +195,9 @@ function DashboardContent() {
       <header className="flex items-center justify-between p-4 bg-white shadow-sm md:hidden">
         <Logo size="sm" />
         <div className="flex items-center gap-4">
-            <Bell className="text-gray-600" />
+            <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')}>
+                <Bell className="text-gray-600" />
+            </Button>
              <Avatar className="h-8 w-8">
                 <AvatarImage src={userProfile?.photoURL} alt={userProfile?.name} />
                 <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
