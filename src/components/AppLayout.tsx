@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import placeholderImage from '@/lib/placeholder-images.json';
 import { Badge } from './ui/badge';
 import { Home, History, LineChart, User, LogOut, Bell, BotMessageSquare, Leaf, Languages } from 'lucide-react';
 import { BottomNav } from './BottomNav';
@@ -31,7 +30,6 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, userProfile, fetchUserProfile, logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
   
   const currentLang = userProfile?.language || 'en';
   const translatedNav = navLabels[currentLang] || navLabels.en;
@@ -141,7 +139,6 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                    <AvatarImage src={avatarImage?.imageUrl} />
                     <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium">{userProfile?.name || user?.email}</span>

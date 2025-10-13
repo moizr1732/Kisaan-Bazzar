@@ -44,8 +44,6 @@ function ProfileContent() {
   const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [cropInput, setCropInput] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   
   const form = useForm<ProfileFormValues>({
@@ -73,9 +71,6 @@ function ProfileContent() {
         crops: userProfile.crops || [],
         farmSize: userProfile.farmSize || undefined,
       });
-      if (userProfile.photoURL) {
-        setAvatarPreview(userProfile.photoURL);
-      }
     }
   }, [userProfile, form]);
   
@@ -147,35 +142,6 @@ function ProfileContent() {
     router.back();
   }
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-        // NOTE: In a real app, you would upload the file to a service like Firebase Storage
-        // and then save the URL to the user's profile.
-        // For this demo, we're just showing a local preview.
-        // To make it persistent, you'd add something like:
-        // const storageRef = ref(storage, `avatars/${user.uid}`);
-        // await uploadString(storageRef, reader.result as string, 'data_url');
-        // const photoURL = await getDownloadURL(storageRef);
-        // await setDoc(doc(db, "users", user.uid), { photoURL }, { merge: true });
-        // await fetchUserProfile(user);
-        toast({
-          title: "Photo Selected",
-          description: "Click 'Save Changes' to update your profile. Photo upload is for demonstration.",
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-
   return (
      <div className="bg-background min-h-screen">
       <header className="flex items-center justify-between p-4 bg-primary text-primary-foreground shadow-sm">
@@ -189,21 +155,9 @@ function ProfileContent() {
         <div className="flex flex-col items-center space-y-2">
             <div className="relative">
                 <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                    <AvatarImage src={avatarPreview || undefined} />
                     <AvatarFallback className="text-3xl">{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
                 </Avatar>
-                <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-primary text-primary-foreground" onClick={handleAvatarClick}>
-                    <Camera className="w-4 h-4"/>
-                </Button>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    accept="image/*"
-                />
             </div>
-            <p className="text-sm text-muted-foreground">Tap to change photo</p>
         </div>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

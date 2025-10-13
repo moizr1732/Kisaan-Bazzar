@@ -36,7 +36,6 @@ import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Advisory, UserProfile } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
-import placeholderImage from "@/lib/placeholder-images.json";
 import { Logo } from "@/components/Logo";
 import AppLayout from "@/components/AppLayout";
 import { getDashboardAlerts } from "@/ai/flows/get-dashboard-alerts";
@@ -60,7 +59,6 @@ function DashboardContent() {
   const router = useRouter();
   const [latestAdvisory, setLatestAdvisory] = useState<Advisory | null>(null);
   const [loadingAdvisory, setLoadingAdvisory] = useState(true);
-  const avatarImage = placeholderImage.placeholderImages.find(p => p.id === 'avatar-placeholder');
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationName, setLocationName] = useState<string>("");
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -139,7 +137,6 @@ function DashboardContent() {
   
   useEffect(() => {
     async function fetchAlerts() {
-      // Only fetch alerts if we have a profile and alerts are not already loaded/loading
       if (!userProfile || alerts.length > 0) {
         setLoadingAlerts(false);
         return;
@@ -162,8 +159,9 @@ function DashboardContent() {
       }
     }
 
-    fetchAlerts();
-  // We only want to run this when userProfile is first available.
+    if (userProfile) {
+        fetchAlerts();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfile]);
 
@@ -202,7 +200,6 @@ function DashboardContent() {
         <div className="flex items-center gap-4">
             <Bell className="text-gray-600" />
             <Avatar className="h-8 w-8">
-                <AvatarImage src={avatarImage?.imageUrl} />
                 <AvatarFallback>{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
             </Avatar>
         </div>
@@ -214,7 +211,6 @@ function DashboardContent() {
           <CardContent className="p-4 flex items-center gap-4">
              <div className="relative">
                 <Avatar className="w-20 h-20 border-4 border-white">
-                    <AvatarImage src={avatarImage?.imageUrl} data-ai-hint={avatarImage?.imageHint} />
                     <AvatarFallback className="text-3xl">{getInitials(userProfile?.name, user?.email)}</AvatarFallback>
                 </Avatar>
                 <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -393,5 +389,3 @@ export default function DashboardPage() {
     </AppLayout>
   )
 }
-
-    
