@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Leaf, Plus, X as XIcon, Loader2, Image as ImageIcon, Upload } from "lucide-react";
+import { Leaf, Plus, X as XIcon, Loader2, ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -80,7 +80,6 @@ function MyCropsContent() {
               title: "Crop already exists",
               description: `"${trimmedCropName}" is already in your list.`,
             });
-            // Still need to reset submitting state on failure
             setIsSubmitting(false);
             return;
         }
@@ -159,7 +158,6 @@ function MyCropsContent() {
             description: error.message || "Could not remove the crop. Please try again.",
         });
     } finally {
-        // CRITICAL FIX: The component was getting stuck because this was not being called.
         setIsSubmitting(false);
     }
   };
