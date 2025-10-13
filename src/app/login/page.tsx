@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import Link from "next/link";
+import { FirebaseError } from "firebase/app";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,10 +34,26 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (error: any) {
       console.error(error);
+      let description = "An unknown error occurred. Please try again.";
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/invalid-credential':
+            description = "Invalid credentials. Please check your email and password.";
+            break;
+          case 'auth/user-not-found':
+            description = "No account found with this email. Please sign up.";
+            break;
+          case 'auth/wrong-password':
+             description = "Incorrect password. Please try again.";
+            break;
+          default:
+            description = "Login failed. Please check your credentials and try again.";
+        }
+      }
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message || "Please check your credentials and try again.",
+        description: description,
       });
       setLoading(false);
     }
