@@ -26,6 +26,9 @@ import {
   BarChart3,
   UserCircle,
   Loader2,
+  Sun,
+  Cloudy,
+  CloudRain,
 } from "lucide-react";
 import { DiagnosisModal } from "@/components/dashboard/DiagnosisModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -136,14 +139,15 @@ function DashboardContent() {
   
   useEffect(() => {
     async function fetchAlerts() {
-      if (!userProfile) return;
-      // Only fetch new alerts if they haven't been fetched before
-      if (alerts.length > 0) {
+      // Only fetch alerts if we have a profile and alerts are not already loaded/loading
+      if (!userProfile || alerts.length > 0) {
         setLoadingAlerts(false);
         return;
       }
+      
       setLoadingAlerts(true);
       setAlertsError(null);
+
       try {
         const result = await getDashboardAlerts({
           location: userProfile.location,
@@ -159,6 +163,7 @@ function DashboardContent() {
     }
 
     fetchAlerts();
+  // We only want to run this when userProfile is first available.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfile]);
 
@@ -178,18 +183,16 @@ function DashboardContent() {
   ];
 
   const quickAccessItems = [
-    { label: "My Crops", icon: Leaf, color: "bg-green-500", action: () => router.push('/my-crops') },
-    { label: "Market Rate", icon: LineChart, color: "bg-yellow-500", action: () => router.push('/market') },
-    { label: "Profile", icon: User, color: "bg-purple-500", action: () => router.push('/profile') },
-    { label: "Settings", icon: Settings, color: "bg-gray-600", action: () => router.push('/settings') },
-    { label: "History", icon: History, color: "bg-red-500", action: () => router.push('/history') },
-    { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-500", action: () => router.push('/voice-agent') },
+    { label: "My Crops", icon: Leaf, color: "bg-green-500 hover:bg-green-600", action: () => router.push('/my-crops') },
+    { label: "Market Rate", icon: LineChart, color: "bg-yellow-500 hover:bg-yellow-600", action: () => router.push('/market') },
+    { label: "Voice Agent", icon: BotMessageSquare, color: "bg-blue-500 hover:bg-blue-600", action: () => router.push('/voice-agent') },
+    { label: "History", icon: History, color: "bg-purple-500 hover:bg-purple-600", action: () => router.push('/history') },
   ];
 
-  const alertColors = {
-    yellow: "bg-yellow-100 text-yellow-800",
-    red: "bg-red-100 text-red-800",
-    green: "bg-green-100 text-green-800",
+  const alertIcons = {
+    "Weather Alert": { icon: CloudSun, color: "text-yellow-600" },
+    "Disease Alert": { icon: Leaf, color: "text-red-600" },
+    "Market Update": { icon: LineChart, color: "text-green-600" },
   };
 
   return (
@@ -241,7 +244,7 @@ function DashboardContent() {
                 <button
                     key={item.label}
                     onClick={item.action}
-                    className={`flex flex-col items-center justify-center p-4 rounded-lg text-white font-semibold space-y-2 ${item.color}`}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg text-white font-semibold space-y-2 transition-colors ${item.color}`}
                 >
                     <item.icon className="w-8 h-8" />
                     <span className="text-sm">{item.label}</span>
@@ -249,6 +252,75 @@ function DashboardContent() {
             ))}
             </div>
         </div>
+        
+        {/* Weather */}
+        <Card className="bg-blue-500 text-white">
+            <CardContent className="p-4 flex items-center justify-between">
+            {locationError ? (
+                <p>{locationError}</p>
+            ) : weatherData?.current?.temperature_2m !== undefined ? (
+                <>
+                    <div>
+                        <p className="font-bold">{locationName || "Current Weather"}</p>
+                        <p className="text-4xl font-bold">{Math.round(weatherData.current.temperature_2m)}°C</p>
+                    </div>
+                    <div className="text-center">
+                        <Sun className="w-16 h-16" />
+                        <p>Sunny</p>
+                    </div>
+                </>
+            ) : (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Loading weather...</span>
+                </div>
+            )}
+            </CardContent>
+        </Card>
+
+        {/* Important Alerts */}
+        {loadingAlerts ? (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Important Alerts</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                     <div className="space-y-3">
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+        ) : alertsError ? (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Important Alerts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-destructive">{alertsError}</p>
+                </CardContent>
+            </Card>
+        ) : alerts.length > 0 ? (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Important Alerts</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {alerts.map((alert, index) => {
+                       const { icon: Icon, color } = alertIcons[alert.type] || { icon: Bell, color: "text-gray-600" };
+                       return (
+                        <div key={index} className={`p-3 rounded-lg flex items-start gap-3 bg-card border`}>
+                            <Icon className={`w-5 h-5 mt-1 flex-shrink-0 ${color}`} />
+                            <div className="text-card-foreground">
+                                <p className="font-bold">{alert.type}</p>
+                                <p className="text-sm">{alert.message}</p>
+                            </div>
+                        </div>
+                    )})}
+                </CardContent>
+            </Card>
+        ) : null}
 
         {/* Today's Market Rate */}
         <Card>
@@ -286,7 +358,7 @@ function DashboardContent() {
           </CardHeader>
           <CardContent>
             {loadingAdvisory ? (
-              <p>Loading latest advisory...</p>
+              <Skeleton className="h-20 w-full" />
             ) : latestAdvisory ? (
               <div className="bg-blue-50 p-4 rounded-lg flex items-center justify-between">
                 <div>
@@ -306,59 +378,6 @@ function DashboardContent() {
           </CardContent>
         </Card>
 
-        {/* Important Alerts */}
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-lg">Important Alerts</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-                {loadingAlerts ? (
-                    <div className="space-y-2">
-                        <Skeleton className="h-20 w-full" />
-                        <Skeleton className="h-20 w-full" />
-                        <Skeleton className="h-20 w-full" />
-                    </div>
-                ) : alertsError ? (
-                     <p className="text-destructive">{alertsError}</p>
-                ) : (
-                    alerts.map((alert, index) => (
-                        <div key={index} className={`p-3 rounded-lg flex items-start gap-3 ${alertColors[alert.color]}`}>
-                            <Bell className="w-5 h-5 mt-1 flex-shrink-0" />
-                            <div>
-                                <p className="font-bold">{alert.type}</p>
-                                <p className="text-sm">{alert.message}</p>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </CardContent>
-        </Card>
-
-        {/* Weather */}
-        <Card className="bg-blue-500 text-white">
-            <CardContent className="p-4 flex items-center justify-between">
-            {weatherData?.current?.temperature_2m !== null && weatherData?.current?.temperature_2m !== undefined ? (
-                <>
-                    <div>
-                        <p className="font-bold">Current Weather</p>
-                        <p className="text-4xl font-bold">{Math.round(weatherData.current.temperature_2m)}°C</p>
-                        <p>{locationName}</p>
-                    </div>
-                    <div className="text-center">
-                        <CloudSun className="w-16 h-16" />
-                        <p>Current</p>
-                    </div>
-                </>
-            ) : locationError ? (
-                <p>{locationError}</p>
-            ) : (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Loading weather...</span>
-                </div>
-            )}
-            </CardContent>
-        </Card>
       </main>
 
       <DiagnosisModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} onAdvisoryCreated={onAdvisoryCreated} />
@@ -374,3 +393,5 @@ export default function DashboardPage() {
     </AppLayout>
   )
 }
+
+    
