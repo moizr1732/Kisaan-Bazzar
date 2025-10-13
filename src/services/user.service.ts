@@ -24,16 +24,13 @@ export async function updateUserProfile(
   }
 
   // Create a clean object and only add defined values.
-  // This is a robust way to prevent Firestore "undefined" errors.
   const dataToSave: { [key: string]: any } = {};
-  for (const key in profileData) {
-    if (Object.prototype.hasOwnProperty.call(profileData, key)) {
-      const value = profileData[key as keyof typeof profileData];
-      if (value !== undefined) {
-        dataToSave[key] = value;
-      }
+  Object.keys(profileData).forEach(key => {
+    const value = profileData[key as keyof typeof profileData];
+    if (value !== undefined) {
+      dataToSave[key] = value;
     }
-  }
+  });
 
   // Do not proceed if there is nothing to save.
   if (Object.keys(dataToSave).length === 0) {

@@ -23,17 +23,14 @@ export async function updateUserCrops(
   }
   const userDocRef = doc(db, 'users', userId);
   
-  // Ensure we don't save undefined values inside the crop array
   const sanitizedCrops = crops.map(crop => {
     const newCrop: { [key: string]: any } = {};
-    for (const key in crop) {
-      if (Object.prototype.hasOwnProperty.call(crop, key)) {
+    Object.keys(crop).forEach(key => {
         const value = crop[key as keyof typeof crop];
         if (value !== undefined) {
-          newCrop[key] = value;
+            newCrop[key] = value;
         }
-      }
-    }
+    });
     return newCrop as Crop;
   });
 
