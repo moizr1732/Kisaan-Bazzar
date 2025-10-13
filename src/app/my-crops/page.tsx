@@ -26,7 +26,7 @@ import { updateUserCrops } from "@/services/crop.service";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
-  const [crops, setCrops] = useState<Crop[]>(userProfile?.crops || []);
+  const [crops, setCrops] = useState<Crop[]>([]);
   const [newCropName, setNewCropName] = useState("");
   const [newCropPrice, setNewCropPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,9 +36,11 @@ function MyCropsContent() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Sync local state when userProfile.crops changes from an external source
+    // Sync local state when userProfile.crops changes from any source
     if (userProfile?.crops) {
       setCrops(userProfile.crops);
+    } else {
+      setCrops([]);
     }
   }, [userProfile?.crops]);
 
@@ -78,6 +80,8 @@ function MyCropsContent() {
               title: "Crop already exists",
               description: `"${trimmedCropName}" is already in your list.`,
             });
+            // Still need to reset submitting state on failure
+            setIsSubmitting(false);
             return;
         }
         
@@ -103,8 +107,9 @@ function MyCropsContent() {
         
         await updateUserCrops(user.uid, updatedCrops);
       
-        // Update state only after successful save
-        setCrops(updatedCrops);
+        // Fetch profile to ensure the entire app context is updated.
+        // The useEffect will handle updating the local `crops` state from the new profile.
+        await fetchUserProfile(user);
 
         toast({
             title: "Crop Added",
@@ -113,9 +118,6 @@ function MyCropsContent() {
         
         resetForm();
         
-        // Fetch profile in the background to ensure context is updated elsewhere
-        await fetchUserProfile(user);
-
     } catch (error: any) {
       toast({
           variant: "destructive",
@@ -123,6 +125,7 @@ function MyCropsContent() {
           description: error.message || "Could not add the crop. Please try again.",
       });
     } finally {
+      // This will run regardless of success or failure
       setIsSubmitting(false);
     }
   };
@@ -130,6 +133,9 @@ function MyCropsContent() {
   const handleRemoveCrop = async (cropToRemove: Crop) => {
     if (!user) return;
     
+    // Prevent multiple clicks while processing
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
     
     try {
@@ -137,16 +143,14 @@ function MyCropsContent() {
         
         await updateUserCrops(user.uid, updatedCrops);
         
-        // Update local state after successful removal
-        setCrops(updatedCrops);
+        // Fetch profile to get the latest source of truth.
+        // The useEffect will handle updating the local state.
+        await fetchUserProfile(user);
 
         toast({
             title: "Crop Removed",
             description: `"${cropToRemove.name}" has been removed from your profile.`,
         });
-
-        // Fetch profile in the background to keep context updated
-        await fetchUserProfile(user);
 
     } catch (error: any) {
         toast({
@@ -155,6 +159,7 @@ function MyCropsContent() {
             description: error.message || "Could not remove the crop. Please try again.",
         });
     } finally {
+        // CRITICAL FIX: The component was getting stuck because this was not being called.
         setIsSubmitting(false);
     }
   };
