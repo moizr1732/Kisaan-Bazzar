@@ -19,15 +19,6 @@ export function SplashScreen() {
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-background overflow-hidden relative">
-      <Image
-        src="https://picsum.photos/seed/farm-field/1920/1080"
-        alt="Farm field background"
-        layout="fill"
-        objectFit="cover"
-        className="z-0"
-        data-ai-hint="farm field"
-      />
-      <div className="absolute inset-0 bg-black/50 z-0"></div>
       
       <div className="absolute inset-0">
         {Array.from({ length: 16 }).map((_, i) => {
