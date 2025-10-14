@@ -39,6 +39,8 @@ import { formatDistanceToNow } from "date-fns";
 import { Logo } from "@/components/Logo";
 import AppLayout from "@/components/AppLayout";
 import { getDashboardAlerts } from "@/ai/flows/get-dashboard-alerts";
+import { getMarketRates } from "@/ai/flows/get-market-rates";
+import type { GetMarketRatesOutput } from "@/ai/flows/get-market-rates";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface WeatherData {
@@ -65,6 +67,10 @@ function DashboardContent() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loadingAlerts, setLoadingAlerts] = useState(true);
   const [alertsError, setAlertsError] = useState<string | null>(null);
+  const [marketData, setMarketData] = useState<GetMarketRatesOutput['crops']>([]);
+  const [loadingMarket, setLoadingMarket] = useState(true);
+  const [marketError, setMarketError] = useState<string | null>(null);
+
 
   useEffect(() => {
     async function fetchLatestAdvisory() {
@@ -155,9 +161,25 @@ function DashboardContent() {
             setLoadingAlerts(false);
         }
     }
+    
+    async function fetchMarketRates() {
+        setLoadingMarket(true);
+        setMarketError(null);
+        try {
+            const data = await getMarketRates();
+            setMarketData(data.crops.slice(0, 2)); // Take only first 2 for the dashboard
+        } catch (e) {
+            console.error("Failed to fetch market rates:", e);
+            setMarketError("Could not load market rates.");
+        } finally {
+            setLoadingMarket(false);
+        }
+    }
 
-    if (userProfile && alerts.length === 0) {
-        fetchAlerts();
+
+    if (userProfile) {
+        if (alerts.length === 0) fetchAlerts();
+        if (marketData.length === 0) fetchMarketRates();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfile]);
@@ -171,11 +193,6 @@ function DashboardContent() {
     if (email) return email.charAt(0).toUpperCase();
     return 'A';
   }
-
-  const marketData = [
-    { crop: "Wheat", price: "2,400", change: "increase", icon: "🌾" },
-    { crop: "Rice", price: "3,200", change: "decrease", icon: "🍚" },
-  ];
 
   const quickAccessItems = [
     { label: "My Crops", icon: Leaf, color: "bg-green-100 text-green-800 hover:bg-green-200", action: () => router.push('/my-crops') },
@@ -328,26 +345,36 @@ function DashboardContent() {
                 <CardTitle className="text-lg">Today's Market Rate</CardTitle>
                 <Button variant="link" size="sm" onClick={() => router.push('/market')}>View All</Button>
             </CardHeader>
-            <CardContent className="space-y-3">
-                {marketData.map(item => (
-                    <div key={item.crop} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="text-2xl">{item.icon}</div>
-                            <div>
-                                <p className="font-bold">{item.crop}</p>
-                                <p className="text-sm text-muted-foreground">per 40kg</p>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                             <p className="font-bold text-lg">Rs {item.price}</p>
-                             {item.change === 'increase' ? (
-                                <p className="text-xs text-green-600 flex items-center justify-end"><ArrowUp className="w-3 h-3 mr-1"/> Price increasing</p>
-                             ) : (
-                                <p className="text-xs text-red-600 flex items-center justify-end"><ArrowDown className="w-3 h-3 mr-1"/> Price decreasing</p>
-                             )}
-                        </div>
+            <CardContent>
+                {loadingMarket ? (
+                    <div className="space-y-3">
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-20 w-full" />
                     </div>
-                ))}
+                ) : marketError ? (
+                    <p className="text-destructive">{marketError}</p>
+                ) : (
+                    <div className="space-y-3">
+                        {marketData.map(item => (
+                            <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-2xl">{item.icon}</div>
+                                    <div>
+                                        <p className="font-bold">{item.name}</p>
+                                        <p className="text-sm text-muted-foreground">per 40kg</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                     <p className="font-bold text-lg">Rs. {item.price40kg}</p>
+                                     <p className={`text-xs flex items-center justify-end ${item.changeColor}`}>
+                                        {item.change.startsWith('+') ? <ArrowUp className="w-3 h-3 mr-1"/> : <ArrowDown className="w-3 h-3 mr-1"/>}
+                                        {item.change.substring(1)}
+                                     </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </CardContent>
         </Card>
 

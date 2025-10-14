@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -19,7 +20,7 @@ const CropDataSchema = z.object({
   change: z.string().describe('The percentage change in price, with a "+" or "-" prefix (e.g., "+5.2%").'),
   mandi: z.string().describe('The name of the market (mandi) where this price is relevant.'),
   updated: z.string().describe('A human-readable string indicating when the price was last updated (e.g., "1 hour ago").'),
-  icon: z.string().describe('An emoji icon representing the crop.'),
+  icon: z.string().describe('A single emoji icon representing the crop.'),
   changeColor: z.enum(['text-green-600', 'text-red-600']).describe('The Tailwind CSS class for the price change text color.'),
 });
 
@@ -36,14 +37,15 @@ const prompt = ai.definePrompt({
   name: 'getMarketRatesPrompt',
   output: { schema: GetMarketRatesOutputSchema },
   prompt: `You are an expert on Pakistani agricultural markets.
-Generate a realistic and diverse list of exactly 6 major crops grown in Pakistan (like Wheat, Rice, Cotton, Tomato, Onion, Potato, etc.).
-For each crop, provide the current, believable market data. The prices should be in Pakistani Rupees (Rs.).
-The 'mandi' should be a real, relevant market location in Pakistan.
-The 'updated' time should be recent and varied (e.g., "30 minutes ago", "2 hours ago").
-Calculate the 'price1kg' based on the 'price40kg'.
-The 'change' should be a realistic percentage, and the 'changeColor' should correspond to whether the change is positive or negative.
+Generate a realistic and diverse list of exactly 6 major crops grown in Pakistan (e.g., Wheat, Rice, Cotton, Tomato, Onion, Potato, Mango, Sugarcane).
+For each crop, provide the current, believable market data. The prices must be in Pakistani Rupees (Rs.).
+The 'mandi' (market) should be a real, relevant market location in Pakistan (e.g., Lahore Sabzi Mandi, Faisalabad Grain Market).
+The 'updated' time should be recent and varied (e.g., "30 minutes ago", "2 hours ago", "Just now").
+The 'change' should be a realistic daily percentage, and the 'changeColor' must correspond to whether the change is positive ('text-green-600') or negative ('text-red-600').
+Calculate 'price1kg' based on 'price40kg'.
+Provide a single, appropriate emoji for 'icon'.
 
-Your response must be in the specified JSON format.
+Your response must be in the specified JSON format and contain exactly 6 crops.
 `,
 });
 
