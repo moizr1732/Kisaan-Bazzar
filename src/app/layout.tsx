@@ -8,6 +8,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { FloatingAgent } from '@/components/FloatingAgent';
 import { ClientToaster } from '@/components/ClientToaster';
 import { SplashScreen } from '@/components/SplashScreen';
+import { FloatingIconsBackground } from '@/components/FloatingIconsBackground';
 
 // Note: Metadata export is commented out because it only works in Server Components.
 // This component needs to be a Client Component to manage splash screen state.
@@ -48,7 +49,10 @@ export default function RootLayout({
           <SplashScreen />
         ) : (
           <AuthProvider>
-            {children}
+            <FloatingIconsBackground />
+            <div className="relative z-10">
+              {children}
+            </div>
             <FloatingAgent />
             <ClientToaster />
           </AuthProvider>

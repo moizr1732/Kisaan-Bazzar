@@ -51,27 +51,6 @@ export function SplashScreen() {
       </div>
 
       <style jsx>{`
-        @keyframes float {
-          0% {
-            transform: translateY(100vh) rotate(0deg);
-            opacity: 0;
-          }
-          10% {
-            opacity: 0.3;
-          }
-          90% {
-            opacity: 0.3;
-          }
-          100% {
-            transform: translateY(-100vh) rotate(360deg);
-            opacity: 0;
-          }
-        }
-        .animate-float {
-          animation-name: float;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
-        }
         @keyframes fadeInScale {
           0% {
             opacity: 0;
