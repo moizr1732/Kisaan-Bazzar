@@ -2,8 +2,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import type { UserProfile, Crop } from '@/lib/types';
 import AppLayout from '@/components/AppLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, MapPin, Phone, MessageSquare, Leaf, Languages, Info, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import { mockFarmers } from '@/lib/mock-data';
 
 interface FarmerProfilePageProps {
   params: {
@@ -32,10 +31,10 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
         return;
       }
       try {
-        const docRef = doc(db, 'users', params.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setFarmerProfile(docSnap.data() as UserProfile);
+        // Using mock data instead of Firestore
+        const profile = mockFarmers.find(f => f.uid === params.uid);
+        if (profile) {
+          setFarmerProfile(profile);
         } else {
           setError('Farmer not found.');
         }
@@ -91,7 +90,7 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
     );
   }
   
-  const languageMap = {en: 'English', ur: 'Urdu', pa: 'Punjabi', si: 'Sindhi', ps: 'Pashto'};
+  const languageMap: {[key: string]: string} = {en: 'English', ur: 'Urdu', pa: 'Punjabi', si: 'Sindhi', ps: 'Pashto'};
 
 
   return (
@@ -182,5 +181,3 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
     </AppLayout>
   );
 }
-
-    

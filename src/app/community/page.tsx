@@ -2,8 +2,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import type { UserProfile, Crop } from '@/lib/types';
 import AppLayout from '@/components/AppLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,6 +12,7 @@ import { AlertTriangle, MapPin, Leaf, Search, ImageIcon, Truck } from 'lucide-re
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { mockFarmers } from '@/lib/mock-data';
 
 export default function CommunityPage() {
   const [farmers, setFarmers] = useState<UserProfile[]>([]);
@@ -24,10 +23,8 @@ export default function CommunityPage() {
   useEffect(() => {
     async function fetchFarmers() {
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const fetchedFarmers = querySnapshot.docs
-          .map(doc => doc.data() as UserProfile)
-          .filter(profile => profile.crops && profile.crops.length > 0); // Only show farmers with crops
+        // Using mock data instead of Firestore
+        const fetchedFarmers = mockFarmers.filter(profile => profile.crops && profile.crops.length > 0);
         setFarmers(fetchedFarmers);
       } catch (err) {
         console.error('Error fetching farmers:', err);

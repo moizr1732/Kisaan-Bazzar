@@ -1,0 +1,133 @@
+import type { UserProfile } from './types';
+
+export const mockFarmers: UserProfile[] = [
+  {
+    uid: 'farmer-1',
+    email: 'nasir.hussain@example.com',
+    name: 'Nasir Hussain',
+    location: 'Sahiwal, Punjab',
+    language: 'pa',
+    farmSize: 15,
+    photoURL: 'https://picsum.photos/seed/farmer1/200/200',
+    crops: [
+      {
+        slug: 'wheat',
+        name: 'Wheat',
+        price: '3900',
+        imageUrl: 'https://picsum.photos/seed/wheat/200/200',
+        icon: '🌾',
+      },
+      {
+        slug: 'sugarcane',
+        name: 'Sugarcane',
+        price: '4500',
+        imageUrl: 'https://picsum.photos/seed/sugarcane/200/200',
+      },
+    ],
+  },
+  {
+    uid: 'farmer-2',
+    email: 'fatima.bibi@example.com',
+    name: 'Fatima Bibi',
+    location: 'Faisalabad, Punjab',
+    language: 'pa',
+    photoURL: 'https://picsum.photos/seed/farmer2/200/200',
+    farmSize: 25,
+    crops: [
+      {
+        slug: 'cotton',
+        name: 'Cotton',
+        price: '8500',
+        imageUrl: 'https://picsum.photos/seed/cotton/200/200',
+      },
+      {
+        slug: 'maize',
+        name: 'Maize',
+        price: '2100',
+        imageUrl: 'https://picsum.photos/seed/maize/200/200',
+        icon: '🌽',
+      },
+      {
+        slug: 'potato',
+        name: 'Potato',
+        price: '1800',
+        imageUrl: 'https://picsum.photos/seed/potato/200/200',
+        icon: '🥔',
+      },
+    ],
+  },
+  {
+    uid: 'farmer-3',
+    email: 'ali.rehman@example.com',
+    name: 'Ali Rehman',
+    location: 'Multan, Punjab',
+    language: 'ur',
+    photoURL: 'https://picsum.photos/seed/farmer3/200/200',
+    farmSize: 50,
+    crops: [
+      {
+        slug: 'mango',
+        name: 'Mango',
+        price: '3000',
+        imageUrl: 'https://picsum.photos/seed/mango/200/200',
+        icon: '🥭',
+      },
+      {
+        slug: 'dates',
+        name: 'Dates',
+        price: '4000',
+        imageUrl: 'https://picsum.photos/seed/dates/200/200',
+      },
+    ],
+  },
+  {
+    uid: 'farmer-4',
+    email: 'zoya.khan@example.com',
+    name: 'Zoya Khan',
+    location: 'Peshawar, KP',
+    language: 'ps',
+    photoURL: 'https://picsum.photos/seed/farmer4/200/200',
+    farmSize: 10,
+    crops: [
+      {
+        slug: 'tomato',
+        name: 'Tomato',
+        price: '1200',
+        imageUrl: 'https://picsum.photos/seed/tomato/200/200',
+        icon: '🍅',
+      },
+      {
+        slug: 'onion',
+        name: 'Onion',
+        price: '2500',
+        imageUrl: 'https://picsum.photos/seed/onion/200/200',
+        icon: '🧅',
+      },
+    ],
+  },
+  {
+    uid: 'farmer-5',
+    email: 'gul.ahmed@example.com',
+    name: 'Gul Ahmed',
+    location: 'Hyderabad, Sindh',
+    language: 'si',
+    photoURL: 'https://picsum.photos/seed/farmer5/200/200',
+    farmSize: 30,
+    crops: [
+      {
+        slug: 'rice-basmati',
+        name: 'Rice (Basmati)',
+        price: '9000',
+        imageUrl: 'https://picsum.photos/seed/rice/200/200',
+        icon: '🍚',
+      },
+      {
+        slug: 'banana',
+        name: 'Banana',
+        price: '800',
+        imageUrl: 'https://picsum.photos/seed/banana/200/200',
+        icon: '🍌',
+      },
+    ],
+  },
+];
