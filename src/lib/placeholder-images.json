@@ -3,67 +3,67 @@
     {
       "id": "wheat",
       "description": "A field of golden wheat.",
-      "imageUrl": "https://picsum.photos/seed/wheat/400/400",
+      "imageUrl": "https://picsum.photos/seed/wheat-field/400/400",
       "imageHint": "wheat field"
     },
     {
       "id": "sugarcane",
       "description": "A dense sugarcane plantation.",
-      "imageUrl": "https://picsum.photos/seed/sugarcane/400/400",
-      "imageHint": "sugarcane field"
+      "imageUrl": "https://picsum.photos/seed/sugarcane-stalks/400/400",
+      "imageHint": "sugarcane plantation"
     },
     {
       "id": "cotton",
       "description": "A cotton plant with bolls.",
-      "imageUrl": "https://picsum.photos/seed/cotton/400/400",
+      "imageUrl": "https://picsum.photos/seed/cotton-boll/400/400",
       "imageHint": "cotton plant"
     },
     {
       "id": "maize",
       "description": "A field of ripe maize.",
-      "imageUrl": "https://picsum.photos/seed/maize/400/400",
+      "imageUrl": "https://picsum.photos/seed/maize-corn/400/400",
       "imageHint": "maize corn"
     },
     {
       "id": "potato",
       "description": "Freshly harvested potatoes.",
-      "imageUrl": "https://picsum.photos/seed/potato/400/400",
+      "imageUrl": "https://picsum.photos/seed/potatoes-harvest/400/400",
       "imageHint": "fresh potatoes"
     },
     {
       "id": "mango",
       "description": "Ripe mangoes hanging from a tree.",
-      "imageUrl": "https://picsum.photos/seed/mango/400/400",
+      "imageUrl": "https://picsum.photos/seed/mango-fruit/400/400",
       "imageHint": "ripe mangoes"
     },
     {
       "id": "dates",
       "description": "A cluster of dates on a palm tree.",
-      "imageUrl": "https://picsum.photos/seed/dates/400/400",
+      "imageUrl": "https://picsum.photos/seed/dates-palm/400/400",
       "imageHint": "dates fruit"
     },
     {
       "id": "tomato",
       "description": "Red tomatoes on the vine.",
-      "imageUrl": "https://picsum.photos/seed/tomato/400/400",
+      "imageUrl": "https://picsum.photos/seed/vine-tomatoes/400/400",
       "imageHint": "fresh tomatoes"
     },
     {
       "id": "onion",
       "description": "A bunch of onions.",
-      "imageUrl": "https://picsum.photos/seed/onion/400/400",
+      "imageUrl": "https://picsum.photos/seed/onions-red/400/400",
       "imageHint": "fresh onions"
     },
     {
       "id": "rice-basmati",
       "description": "A paddy field of basmati rice.",
-      "imageUrl": "https://picsum.photos/seed/rice/400/400",
+      "imageUrl": "https://picsum.photos/seed/rice-paddy/400/400",
       "imageHint": "rice paddy"
     },
     {
       "id": "banana",
       "description": "A bunch of bananas on a tree.",
-      "imageUrl": "https://picsum.photos/seed/banana/400/400",
+      "imageUrl": "https://picsum.photos/seed/banana-bunch/400/400",
       "imageHint": "banana bunch"
     }
   ]
