@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import type { UserProfile, Crop } from '@/lib/types';
-import AppLayout from '@/components/AppLayout';
+import PublicLayout from '@/components/PublicLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
 
   if (loading) {
     return (
-      <AppLayout>
+      <PublicLayout>
         <div className="space-y-6">
           <div className="flex items-center gap-6">
             <Skeleton className="h-24 w-24 rounded-full" />
@@ -69,13 +69,13 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
           <Skeleton className="h-40 w-full" />
           <Skeleton className="h-64 w-full" />
         </div>
-      </AppLayout>
+      </PublicLayout>
     );
   }
 
   if (error) {
     return (
-      <AppLayout>
+      <PublicLayout>
         <Card className="mt-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
@@ -86,7 +86,7 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
             <p>{error}</p>
           </CardContent>
         </Card>
-      </AppLayout>
+      </PublicLayout>
     );
   }
   
@@ -94,7 +94,7 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
 
 
   return (
-    <AppLayout>
+    <PublicLayout>
       {farmerProfile && (
         <div className="space-y-6">
           <Card>
@@ -178,6 +178,6 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
           </Card>
         </div>
       )}
-    </AppLayout>
+    </PublicLayout>
   );
 }

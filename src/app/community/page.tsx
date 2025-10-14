@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import type { UserProfile, Crop } from '@/lib/types';
-import AppLayout from '@/components/AppLayout';
+import PublicLayout from '@/components/PublicLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,7 +49,7 @@ export default function CommunityPage() {
 
   if (error) {
     return (
-      <AppLayout>
+      <PublicLayout>
         <Card className="mt-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
@@ -60,12 +60,12 @@ export default function CommunityPage() {
             <p>{error}</p>
           </CardContent>
         </Card>
-      </AppLayout>
+      </PublicLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <PublicLayout>
         <div className="space-y-8">
             <header className="space-y-2">
                 <h1 className="text-3xl font-bold font-headline">Community Marketplace</h1>
@@ -146,6 +146,6 @@ export default function CommunityPage() {
             </section>
 
         </div>
-    </AppLayout>
+    </PublicLayout>
   );
 }
