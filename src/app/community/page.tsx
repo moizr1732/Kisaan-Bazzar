@@ -48,58 +48,69 @@ export default function CommunityPage() {
   };
 
   const applyFilters = () => {
-    let crops = communityMockData;
+    setLoading(true);
+    setTimeout(() => {
+      let crops = communityMockData;
 
-    // Search query
-    if (searchQuery) {
-      crops = crops.filter(crop => crop.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    
-    // Price range
-    crops = crops.filter(crop => {
-        const price = parseInt(crop.price || '0');
-        return price >= priceRange[0] && price <= priceRange[1];
-    });
+      // Search query
+      if (searchQuery) {
+        crops = crops.filter(crop => crop.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      }
+      
+      // Price range
+      crops = crops.filter(crop => {
+          const price = parseInt(crop.price || '0');
+          return price >= priceRange[0] && price <= priceRange[1];
+      });
 
-    // Location
-    if (location) {
-        crops = crops.filter(crop => crop.farmer.location.toLowerCase().includes(location.toLowerCase()));
-    }
+      // Location
+      if (location) {
+          crops = crops.filter(crop => crop.farmer.location.toLowerCase().includes(location.toLowerCase()));
+      }
 
-    // Categories
-    if (selectedCategories.length > 0) {
-        crops = crops.filter(crop => selectedCategories.includes(crop.category.toLowerCase()));
-    }
-    
-    // Availability
-    if (selectedAvailability.length > 0) {
-        const hasDelivery = selectedAvailability.includes('delivery');
-        const hasPickup = selectedAvailability.includes('pickup');
-        // This is a simple mock logic. A real app would have this data per crop.
-        // For now, let's assume some are available for pickup, some for delivery.
-        if (hasDelivery) {
-            crops = crops.filter((_, index) => index % 2 === 0); // Mock: even index crops have delivery
-        }
-         if (hasPickup) {
-            crops = crops.filter((_, index) => index % 2 !== 0); // Mock: odd index crops have pickup
-        }
-    }
+      // Categories
+      if (selectedCategories.length > 0) {
+          crops = crops.filter(crop => selectedCategories.includes(crop.category.toLowerCase()));
+      }
+      
+      // Availability
+      if (selectedAvailability.length > 0) {
+          const hasDelivery = selectedAvailability.includes('delivery');
+          const hasPickup = selectedAvailability.includes('pickup');
+          // This is a simple mock logic. A real app would have this data per crop.
+          // For now, let's assume some are available for pickup, some for delivery.
+          if (hasDelivery) {
+              crops = crops.filter((_, index) => index % 2 === 0); // Mock: even index crops have delivery
+          }
+           if (hasPickup) {
+              crops = crops.filter((_, index) => index % 2 !== 0); // Mock: odd index crops have pickup
+          }
+      }
 
-
-    setFilteredCrops(crops);
+      setFilteredCrops(crops);
+      setLoading(false);
+    }, 500); // Simulate network delay
   };
 
   const resetFilters = () => {
-    setSearchQuery('');
-    setPriceRange(initialPriceRange);
-    setLocation('');
-    setSelectedCategories([]);
-    setSelectedAvailability([]);
-    setFilteredCrops(communityMockData);
+    setLoading(true);
+    setTimeout(() => {
+      setSearchQuery('');
+      setPriceRange(initialPriceRange);
+      setLocation('');
+      setSelectedCategories([]);
+      setSelectedAvailability([]);
+      setFilteredCrops(communityMockData);
+      setLoading(false);
+    }, 500);
   };
 
   useEffect(() => {
-    setLoading(false);
+    // Simulate initial data loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const mostWantedCrops = useMemo(() => filteredCrops.filter(crop => crop.tags.includes('High Demand')), [filteredCrops]);
@@ -155,6 +166,23 @@ export default function CommunityPage() {
         </CardFooter>
       </Card>
   )
+  
+  const renderSkeletonLoader = () => (
+      <div className="space-y-10">
+        <div>
+            <Skeleton className="h-8 w-48 mb-4" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+            </div>
+        </div>
+        <div>
+            <Skeleton className="h-8 w-48 mb-4" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+            </div>
+        </div>
+      </div>
+  )
 
   return (
     <PublicLayout>
@@ -165,7 +193,7 @@ export default function CommunityPage() {
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <CardTitle>Filters</CardTitle>
-                            <Button variant="ghost" size="sm" onClick={resetFilters}>
+                            <Button variant="ghost" size="sm" onClick={resetFilters} disabled={loading}>
                                 <RotateCcw className="mr-2 h-4 w-4" /> Reset
                             </Button>
                         </div>
@@ -179,6 +207,7 @@ export default function CommunityPage() {
                                 className="pl-10" 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                disabled={loading}
                             />
                         </div>
                         
@@ -194,6 +223,7 @@ export default function CommunityPage() {
                                 step={100}
                                 value={priceRange}
                                 onValueChange={(value) => setPriceRange(value)}
+                                disabled={loading}
                             />
                         </div>
 
@@ -205,6 +235,7 @@ export default function CommunityPage() {
                                 placeholder="e.g., Lahore" 
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
+                                disabled={loading}
                             />
                         </div>
 
@@ -218,6 +249,7 @@ export default function CommunityPage() {
                                             id={`cat-${category.id}`}
                                             checked={selectedCategories.includes(category.id)}
                                             onCheckedChange={(checked) => handleCategoryChange(category.id, checked)}
+                                            disabled={loading}
                                         />
                                         <label htmlFor={`cat-${category.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                             {category.label}
@@ -237,6 +269,7 @@ export default function CommunityPage() {
                                             id={`avail-${item.id}`}
                                             checked={selectedAvailability.includes(item.id)}
                                             onCheckedChange={(checked) => handleAvailabilityChange(item.id, checked)}
+                                            disabled={loading}
                                         />
                                         <label htmlFor={`avail-${item.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                             {item.label}
@@ -246,7 +279,9 @@ export default function CommunityPage() {
                             </div>
                         </div>
 
-                        <Button className="w-full" onClick={applyFilters}>Apply Filters</Button>
+                        <Button className="w-full" onClick={applyFilters} disabled={loading}>
+                            Apply Filters
+                        </Button>
 
                     </CardContent>
                 </Card>
@@ -255,12 +290,7 @@ export default function CommunityPage() {
             {/* Main Content */}
             <main className="col-span-1 lg:col-span-3 space-y-10">
                 {loading ? (
-                     <div className="space-y-8">
-                        <Skeleton className="h-8 w-48" />
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
-                        </div>
-                    </div>
+                    renderSkeletonLoader()
                 ) : (
                     <>
                         {mostWantedCrops.length > 0 && (
