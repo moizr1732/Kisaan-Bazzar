@@ -18,10 +18,11 @@ interface FarmerProfilePageProps {
   };
 }
 
-export default function FarmerProfilePage({ params: { uid } }: FarmerProfilePageProps) {
+export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
   const [farmerProfile, setFarmerProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { uid } = params;
 
   useEffect(() => {
     async function fetchFarmerProfile() {
