@@ -18,21 +18,21 @@ interface FarmerProfilePageProps {
   };
 }
 
-export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
+export default function FarmerProfilePage({ params: { uid } }: FarmerProfilePageProps) {
   const [farmerProfile, setFarmerProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchFarmerProfile() {
-      if (!params.uid) {
+      if (!uid) {
         setError('Farmer ID is missing.');
         setLoading(false);
         return;
       }
       try {
         // Using mock data instead of Firestore
-        const profile = mockFarmers.find(f => f.uid === params.uid);
+        const profile = mockFarmers.find(f => f.uid === uid);
         if (profile) {
           setFarmerProfile(profile);
         } else {
@@ -47,7 +47,7 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
     }
 
     fetchFarmerProfile();
-  }, [params.uid]);
+  }, [uid]);
 
   const getInitials = (name?: string, email?: string) => {
     if (name) return name.split(' ').map(n => n[0]).join('').toUpperCase();
