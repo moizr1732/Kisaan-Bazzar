@@ -3,25 +3,38 @@
 
 import { Logo } from './Logo';
 import { Leaf, ShoppingCart, Tractor, Wheat } from 'lucide-react';
+import Image from 'next/image';
 
 export function SplashScreen() {
   const icons = [
-    { Icon: Leaf, className: 'text-green-500' },
-    { Icon: ShoppingCart, className: 'text-blue-500' },
-    { Icon: Tractor, className: 'text-orange-500' },
-    { Icon: Wheat, className: 'text-yellow-500' },
-    { Icon: Leaf, className: 'text-green-400' },
-    { Icon: ShoppingCart, className: 'text-blue-400' },
+    { Icon: Leaf, className: 'text-green-300' },
+    { Icon: ShoppingCart, className: 'text-blue-300' },
+    { Icon: Tractor, className: 'text-orange-300' },
+    { Icon: Wheat, className: 'text-yellow-300' },
+    { Icon: Leaf, className: 'text-green-200' },
+    { Icon: ShoppingCart, className: 'text-blue-200' },
+    { Icon: Tractor, className: 'text-orange-200' },
+    { Icon: Wheat, className: 'text-yellow-200' },
   ];
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-background overflow-hidden relative">
+      <Image
+        src="https://picsum.photos/seed/farm-field/1920/1080"
+        alt="Farm field background"
+        layout="fill"
+        objectFit="cover"
+        className="z-0"
+        data-ai-hint="farm field"
+      />
+      <div className="absolute inset-0 bg-black/50 z-0"></div>
+      
       <div className="absolute inset-0">
-        {Array.from({ length: 12 }).map((_, i) => {
+        {Array.from({ length: 16 }).map((_, i) => {
           const Icon = icons[i % icons.length].Icon;
           const className = icons[i % icons.length].className;
-          const animationDelay = `${Math.random() * 5}s`;
-          const animationDuration = `${5 + Math.random() * 5}s`;
+          const animationDelay = `${Math.random() * 7}s`;
+          const animationDuration = `${7 + Math.random() * 7}s`;
           const left = `${Math.random() * 100}%`;
           const size = `${2 + Math.random() * 4}rem`;
 
@@ -37,7 +50,7 @@ export function SplashScreen() {
                 height: size,
               }}
             >
-              <Icon className={`${className} opacity-20 w-full h-full`} />
+              <Icon className={`${className} opacity-30 w-full h-full`} />
             </div>
           );
         })}
@@ -49,17 +62,17 @@ export function SplashScreen() {
       <style jsx>{`
         @keyframes float {
           0% {
-            transform: translateY(100vh);
+            transform: translateY(100vh) rotate(0deg);
             opacity: 0;
           }
           10% {
-            opacity: 0.2;
+            opacity: 0.3;
           }
           90% {
-            opacity: 0.2;
+            opacity: 0.3;
           }
           100% {
-            transform: translateY(-100vh);
+            transform: translateY(-100vh) rotate(360deg);
             opacity: 0;
           }
         }
@@ -79,7 +92,7 @@ export function SplashScreen() {
           }
         }
         .animate-fade-in-scale {
-          animation: fadeInScale 1s ease-out forwards;
+          animation: fadeInScale 1.5s ease-out forwards;
         }
       `}</style>
     </div>

@@ -31,7 +31,7 @@ export default function RootLayout({
     const timer = setTimeout(() => {
       setShowSplash(false);
       sessionStorage.setItem('splashSeen', 'true');
-    }, 5000);
+    }, 7000); // Increased duration to 7 seconds
     return () => clearTimeout(timer);
   }, []);
 
