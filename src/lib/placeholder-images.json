@@ -1,16 +1,70 @@
 {
   "placeholderImages": [
     {
-      "id": "farm-background",
-      "description": "A lush green farm field under a blue sky.",
-      "imageUrl": "https://images.unsplash.com/photo-1696441567908-6a04d49e1350?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXJtJTIwZmllbGR8ZW58MHx8fHwxNzU5MjQzODQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "farm field"
+      "id": "wheat",
+      "description": "A field of golden wheat.",
+      "imageUrl": "https://picsum.photos/seed/wheat/400/400",
+      "imageHint": "wheat field"
     },
     {
-      "id": "avatar-placeholder",
-      "description": "A placeholder avatar for user profiles.",
-      "imageUrl": "https://images.unsplash.com/photo-1724435811349-32d27f4d5806?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwcm9maWxlJTIwYXZhdGFyfGVufDB8fHx8MTc1OTIxOTE5NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "profile avatar"
+      "id": "sugarcane",
+      "description": "A dense sugarcane plantation.",
+      "imageUrl": "https://picsum.photos/seed/sugarcane/400/400",
+      "imageHint": "sugarcane field"
+    },
+    {
+      "id": "cotton",
+      "description": "A cotton plant with bolls.",
+      "imageUrl": "https://picsum.photos/seed/cotton/400/400",
+      "imageHint": "cotton plant"
+    },
+    {
+      "id": "maize",
+      "description": "A field of ripe maize.",
+      "imageUrl": "https://picsum.photos/seed/maize/400/400",
+      "imageHint": "maize corn"
+    },
+    {
+      "id": "potato",
+      "description": "Freshly harvested potatoes.",
+      "imageUrl": "https://picsum.photos/seed/potato/400/400",
+      "imageHint": "fresh potatoes"
+    },
+    {
+      "id": "mango",
+      "description": "Ripe mangoes hanging from a tree.",
+      "imageUrl": "https://picsum.photos/seed/mango/400/400",
+      "imageHint": "ripe mangoes"
+    },
+    {
+      "id": "dates",
+      "description": "A cluster of dates on a palm tree.",
+      "imageUrl": "https://picsum.photos/seed/dates/400/400",
+      "imageHint": "dates fruit"
+    },
+    {
+      "id": "tomato",
+      "description": "Red tomatoes on the vine.",
+      "imageUrl": "https://picsum.photos/seed/tomato/400/400",
+      "imageHint": "fresh tomatoes"
+    },
+    {
+      "id": "onion",
+      "description": "A bunch of onions.",
+      "imageUrl": "https://picsum.photos/seed/onion/400/400",
+      "imageHint": "fresh onions"
+    },
+    {
+      "id": "rice-basmati",
+      "description": "A paddy field of basmati rice.",
+      "imageUrl": "https://picsum.photos/seed/rice/400/400",
+      "imageHint": "rice paddy"
+    },
+    {
+      "id": "banana",
+      "description": "A bunch of bananas on a tree.",
+      "imageUrl": "https://picsum.photos/seed/banana/400/400",
+      "imageHint": "banana bunch"
     }
   ]
 }

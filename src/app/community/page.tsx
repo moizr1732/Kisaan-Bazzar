@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { mockFarmers } from '@/lib/mock-data';
+import { placeholderImages } from '@/lib/placeholder-images.json';
 
 export default function CommunityPage() {
   const [farmers, setFarmers] = useState<UserProfile[]>([]);
@@ -42,8 +43,16 @@ export default function CommunityPage() {
     return 'F';
   };
   
-  const allCrops: (Crop & { farmer: UserProfile })[] = farmers.flatMap(farmer => 
-    (farmer.crops || []).map(crop => ({...crop, farmer}))
+  const allCrops = farmers.flatMap(farmer => 
+    (farmer.crops || []).map(crop => {
+        const imageInfo = placeholderImages.find(p => p.id === crop.slug);
+        return {
+            ...crop, 
+            farmer,
+            imageUrl: imageInfo?.imageUrl,
+            imageHint: imageInfo?.imageHint,
+        }
+    })
   );
 
 
@@ -92,7 +101,14 @@ export default function CommunityPage() {
                                <CardContent className="p-0">
                                   <div className="aspect-square w-full bg-gray-100 flex items-center justify-center">
                                       {crop.imageUrl ? (
-                                        <Image src={crop.imageUrl} alt={crop.name} width={200} height={200} className="w-full h-full object-cover" />
+                                        <Image 
+                                            src={crop.imageUrl} 
+                                            alt={crop.name} 
+                                            width={200} 
+                                            height={200} 
+                                            className="w-full h-full object-cover" 
+                                            data-ai-hint={crop.imageHint}
+                                        />
                                       ) : crop.icon ? (
                                           <span className="text-6xl">{crop.icon}</span>
                                       ): (

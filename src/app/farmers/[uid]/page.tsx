@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, MapPin, Phone, MessageSquare, Leaf, Languages, Info, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import { mockFarmers } from '@/lib/mock-data';
+import { placeholderImages } from '@/lib/placeholder-images.json';
 
 interface FarmerProfilePageProps {
   params: {
@@ -93,6 +94,14 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
   
   const languageMap: {[key: string]: string} = {en: 'English', ur: 'Urdu', pa: 'Punjabi', si: 'Sindhi', ps: 'Pashto'};
 
+  const cropsWithImages = farmerProfile?.crops?.map(crop => {
+      const imageInfo = placeholderImages.find(p => p.id === crop.slug);
+      return {
+          ...crop,
+          imageUrl: imageInfo?.imageUrl,
+          imageHint: imageInfo?.imageHint,
+      }
+  }) || [];
 
   return (
     <PublicLayout>
@@ -150,14 +159,21 @@ export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {farmerProfile.crops && farmerProfile.crops.length > 0 ? (
+              {cropsWithImages.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {farmerProfile.crops.map((crop: Crop) => (
+                  {cropsWithImages.map((crop: any) => (
                     <Card key={crop.slug} className="overflow-hidden">
                        <CardContent className="p-0">
                           <div className="aspect-square w-full bg-gray-100 flex items-center justify-center">
                               {crop.imageUrl ? (
-                                <Image src={crop.imageUrl} alt={crop.name} width={200} height={200} className="w-full h-full object-cover" />
+                                <Image 
+                                    src={crop.imageUrl} 
+                                    alt={crop.name} 
+                                    width={200} 
+                                    height={200} 
+                                    className="w-full h-full object-cover" 
+                                    data-ai-hint={crop.imageHint}
+                                />
                               ) : crop.icon ? (
                                   <span className="text-6xl">{crop.icon}</span>
                               ): (

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import { updateUserCrops } from "@/services/crop.service";
 import { useRouter } from "next/navigation";
+import { placeholderImages } from "@/lib/placeholder-images.json";
 
 function MyCropsContent() {
   const { user, userProfile, fetchUserProfile } = useAuth();
@@ -159,6 +160,15 @@ function MyCropsContent() {
     }
   };
 
+  const cropsWithImages = crops.map(crop => {
+      const imageInfo = placeholderImages.find(p => p.id === crop.slug);
+      return {
+          ...crop,
+          imageUrl: imageInfo?.imageUrl || crop.imageUrl,
+          imageHint: imageInfo?.imageHint,
+      }
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center gap-2">
@@ -242,14 +252,21 @@ function MyCropsContent() {
             <Leaf className="text-green-600" />
             Your Registered Crops
         </h2>
-        {crops.length > 0 ? (
+        {cropsWithImages.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {crops.map((crop) => (
+              {cropsWithImages.map((crop) => (
                 <Card key={crop.slug} className="group relative overflow-hidden">
                     <CardContent className="p-0">
                         <div className="aspect-square w-full bg-gray-100 flex items-center justify-center">
                             {crop.imageUrl ? (
-                               <Image src={crop.imageUrl} alt={crop.name} width={200} height={200} className="w-full h-full object-cover" />
+                               <Image 
+                                    src={crop.imageUrl} 
+                                    alt={crop.name} 
+                                    width={200} 
+                                    height={200} 
+                                    className="w-full h-full object-cover"
+                                    data-ai-hint={crop.imageHint}
+                                />
                             ) : crop.icon ? (
                                 <span className="text-6xl">{crop.icon}</span>
                             ): (
@@ -294,5 +311,3 @@ export default function MyCropsPage() {
     </AppLayout>
   );
 }
-
-    
