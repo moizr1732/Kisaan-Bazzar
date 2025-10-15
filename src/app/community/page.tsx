@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import type { UserProfile } from '@/lib/types';
 import PublicLayout from '@/components/PublicLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
-import { AlertTriangle, MapPin, Leaf, Search, ImageIcon, Truck, Star, Sparkles, CalendarClock, RotateCcw } from 'lucide-react';
+import { AlertTriangle, Search, ImageIcon, Star, Sparkles, CalendarClock, RotateCcw } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { communityMockData, categories, availability } from '@/lib/community-mock-data';
