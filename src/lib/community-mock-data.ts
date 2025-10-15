@@ -13,7 +13,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'cotton',
     name: 'Cotton',
     price: '8500',
-    imageUrl: 'https://picsum.photos/seed/cotton-boll/400/400',
+    imageUrl: 'https://tse1.mm.bing.net/th/id/OIP.5ZE0ElLmc0tk_tkOhws9BQHaFj?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3',
     imageHint: 'cotton plant',
     farmer: {
       uid: 'farmer-2',
