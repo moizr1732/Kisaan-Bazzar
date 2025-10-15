@@ -12,7 +12,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen w-full bg-muted/40">
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6">
-        <Logo />
+        <Logo href="/community" />
         <div className="flex items-center gap-4">
             <Button variant="outline" onClick={() => router.push('/')}>
                 <Leaf className="mr-2 h-4 w-4" /> Are you a Farmer?
