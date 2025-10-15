@@ -9,8 +9,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // This is to allow cross-origin requests from the Firebase Studio preview URL.
-  allowedDevOrigins: ["*.cloudworkstations.dev"],
   images: {
     remotePatterns: [
       {
