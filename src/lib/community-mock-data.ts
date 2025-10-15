@@ -58,7 +58,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'tomato',
     name: 'Tomato',
     price: '1200',
-    imageUrl: 'https://picsum.photos/seed/vine-tomatoes/400/400',
+    imageUrl: 'https://th.bing.com/th/id/R.9267f874f44c1ed49b1c0ae4974cc291?rik=AxiDcWjF0ELvrQ&pid=ImgRaw&r=0',
     imageHint: 'fresh tomatoes',
     farmer: {
       uid: 'farmer-4',
