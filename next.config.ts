@@ -44,6 +44,12 @@ const nextConfig: NextConfig = {
         hostname: 'i.etsystatic.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.shutterstock.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
