@@ -64,7 +64,9 @@ export default function CommunityPage() {
 
       // Location
       if (location) {
-          crops = crops.filter(crop => crop.farmer.location.toLowerCase().includes(location.toLowerCase()));
+          crops = crops.filter(crop => 
+              crop.farmer.location && crop.farmer.location.toLowerCase().includes(location.toLowerCase())
+          );
       }
 
       // Categories
