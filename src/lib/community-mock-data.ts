@@ -28,8 +28,8 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'mango',
     name: 'Mango (Chaunsa)',
     price: '3200',
-    imageUrl: 'https://picsum.photos/seed/mango-fruit/400/400',
-    imageHint: 'ripe mangoes',
+    imageUrl: 'https://i.etsystatic.com/14792178/r/il/8edfd4/2197479858/il_fullxfull.2197479858_hpd8.jpg',
+    imageHint: 'cotton plant',
     farmer: {
       uid: 'farmer-3',
       name: 'Ali Rehman',
