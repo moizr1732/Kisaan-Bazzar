@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import type { UserProfile, Crop } from '@/lib/types';
 import PublicLayout from '@/components/PublicLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,17 +14,12 @@ import Image from 'next/image';
 import { mockFarmers } from '@/lib/mock-data';
 import { placeholderImages } from '@/lib/placeholder-images.json';
 
-interface FarmerProfilePageProps {
-  params: {
-    uid: string;
-  };
-}
-
-export default function FarmerProfilePage({ params }: FarmerProfilePageProps) {
+export default function FarmerProfilePage() {
+  const params = useParams();
   const [farmerProfile, setFarmerProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { uid } = params;
+  const uid = params.uid as string;
 
   useEffect(() => {
     async function fetchFarmerProfile() {
