@@ -76,6 +76,12 @@ const nextConfig: NextConfig = {
         hostname: 'tse3.mm.bing.net',
         port: '',
         pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'www.savingdessert.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

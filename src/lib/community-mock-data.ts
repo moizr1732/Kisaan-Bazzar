@@ -133,7 +133,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'strawberry',
     name: 'Strawberry',
     price: '1500',
-    imageUrl: 'https://picsum.photos/seed/strawberry-field/400/400',
+    imageUrl: 'https://www.savingdessert.com/wp-content/uploads/2016/04/Strawberry-Mascarpon-Cake-4-388x258.jpg',
     imageHint: 'fresh strawberries',
     farmer: {
         uid: 'farmer-3',
