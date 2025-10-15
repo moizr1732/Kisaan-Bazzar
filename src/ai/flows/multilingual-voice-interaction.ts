@@ -35,6 +35,7 @@ export type MultilingualVoiceInteractionInput = z.infer<typeof MultilingualVoice
 const MultilingualVoiceInteractionOutputSchema = z.object({
   response: z.string().describe('The personalized response from the voice agent in the detected language.'),
   detectedLanguage: z.string().describe('The language detected from the user command.'),
+  transcribedText: z.string().optional().describe('The transcribed text from the user\'s voice command.'),
 });
 export type MultilingualVoiceInteractionOutput = z.infer<typeof MultilingualVoiceInteractionOutputSchema>;
 
@@ -51,6 +52,8 @@ const prompt = ai.definePrompt({
 You will automatically detect the language of the user's command and respond accordingly.
 Your responses should be personalized based on the user's profile, location, and past interactions, if available.
 Maintain context during conversations for more natural and relevant interactions.
+
+If the user provides a voice command, you MUST transcribe it and include the transcription in the "transcribedText" output field.
 
 {{#if textCommand}}
 User command: {{{textCommand}}}

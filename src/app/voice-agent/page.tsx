@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { multilingualVoiceInteraction } from "@/ai/flows/multilingual-voice-interaction";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 
 
@@ -50,14 +50,9 @@ function VoiceAgentContent() {
     conversationEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);
 
-  const processInteraction = async (input: { voiceCommand?: string; textCommand?: string; userTurnText: string; imageCommand?: string }) => {
+  const processInteraction = async (input: { voiceCommand?: string; textCommand?: string; imageCommand?: string; }) => {
     try {
-        const userTurn: ConversationTurn = { speaker: 'user', text: input.userTurnText, imagePreview: input.imageCommand };
-        setConversation(prev => [...prev, userTurn]);
-        setTextInput("");
-        setImagePreview(null);
         setAgentState("processing");
-
         const pastInteractions = conversation.map(turn => `${turn.speaker}: ${turn.text}`).join('\n');
         
         const interactionResult = await multilingualVoiceInteraction({ 
@@ -66,9 +61,31 @@ function VoiceAgentContent() {
           location: userProfile?.location,
           pastInteractions: pastInteractions,
         });
+        
+        // Determine what the user said
+        let userTurnText = "";
+        if (input.textCommand) {
+          userTurnText = input.textCommand;
+        } else if (interactionResult.transcribedText) {
+          userTurnText = interactionResult.transcribedText;
+        } else if (input.imageCommand) {
+          userTurnText = "Sent an image.";
+        } else if (input.voiceCommand) {
+          userTurnText = "You spoke to the agent.";
+        }
 
+        const userTurn: ConversationTurn = { 
+            speaker: 'user', 
+            text: userTurnText, 
+            imagePreview: input.imageCommand 
+        };
+        
+        // Update conversation with both user and agent turns
         const agentTurn: ConversationTurn = { speaker: 'agent', text: interactionResult.response };
-        setConversation(prev => [...prev, agentTurn]);
+        setConversation(prev => [...prev, userTurn, agentTurn]);
+        
+        setTextInput("");
+        setImagePreview(null);
 
         const ttsResult = await textToSpeech({ text: interactionResult.response });
 
@@ -131,7 +148,6 @@ function VoiceAgentContent() {
       const base64Audio = reader.result as string;
       await processInteraction({ 
         voiceCommand: base64Audio, 
-        userTurnText: "You spoke to the agent and sent an image.",
         imageCommand: imagePreview || undefined,
        });
     };
@@ -142,7 +158,6 @@ function VoiceAgentContent() {
       if (!textInput.trim() && !imagePreview) return;
       await processInteraction({ 
         textCommand: textInput, 
-        userTurnText: textInput,
         imageCommand: imagePreview || undefined,
       });
   }
@@ -214,11 +229,12 @@ function VoiceAgentContent() {
                 ? 'bg-primary text-primary-foreground' 
                 : 'bg-muted'
              }`}>
-               {turn.imagePreview && <Image src={turn.imagePreview} alt="user upload" width={200} height={200} className="rounded-md mb-2" />}
+               {turn.imagePreview && <div className="mb-2"><Image src={turn.imagePreview} alt="user upload" width={200} height={200} className="rounded-md" /></div>}
                <p>{turn.text}</p>
              </div>
             {turn.speaker === 'user' && (
               <Avatar className="w-8 h-8">
+                 <AvatarImage src={userProfile?.photoURL} />
                 <AvatarFallback>{getInitials(userProfile?.name)}</AvatarFallback>
               </Avatar>
             )}
@@ -301,5 +317,3 @@ export default function VoiceAgentPage() {
     </AppLayout>
   );
 }
-
-    
