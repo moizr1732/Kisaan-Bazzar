@@ -13,7 +13,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'cotton',
     name: 'Cotton',
     price: '8500',
-    imageUrl: 'https://tse1.mm.bing.net/th/id/OIP.5ZE0ElLmc0tk_tkOhws9BQHaFj?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3',
+    imageUrl: 'https://i.etsystatic.com/14792178/r/il/8edfd4/2197479858/il_fullxfull.2197479858_hpd8.jpg',
     imageHint: 'cotton plant',
     farmer: {
       uid: 'farmer-2',
@@ -172,5 +172,3 @@ export const availability = [
     { id: 'delivery', label: 'Home Delivery' },
     { id: 'pickup', label: 'Self Pickup' },
 ]
-
-    
