@@ -29,7 +29,7 @@ export const communityMockData: CommunityCrop[] = [
     name: 'Mango (Chaunsa)',
     price: '3200',
     imageUrl: 'https://i.etsystatic.com/14792178/r/il/8edfd4/2197479858/il_fullxfull.2197479858_hpd8.jpg',
-    imageHint: 'cotton plant',
+    imageHint: 'mango fruit',
     farmer: {
       uid: 'farmer-3',
       name: 'Ali Rehman',
@@ -43,7 +43,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'wheat',
     name: 'Wheat',
     price: '3950',
-    imageUrl: 'https://picsum.photos/seed/wheat-field/400/400',
+    imageUrl: 'https://ig-pflanzenzucht.de/wp-content/uploads/IMG_1513_lr-scaled.jpg',
     imageHint: 'wheat field',
     farmer: {
       uid: 'farmer-1',
