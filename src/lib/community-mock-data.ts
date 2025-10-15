@@ -73,7 +73,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'rice-basmati',
     name: 'Rice (Basmati)',
     price: '9000',
-    imageUrl: 'https://picsum.photos/seed/rice-paddy/400/400',
+    imageUrl: 'https://tse2.mm.bing.net/th/id/OIP.KIYwM-Rk-0vIOCegQfCPRQHaEK?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3',
     imageHint: 'rice paddy',
     farmer: {
       uid: 'farmer-5',
