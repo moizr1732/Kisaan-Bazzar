@@ -56,6 +56,12 @@ const nextConfig: NextConfig = {
         hostname: 'ig-pflanzenzucht.de',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'agrinutritionedge.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

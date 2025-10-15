@@ -148,7 +148,7 @@ export const communityMockData: CommunityCrop[] = [
     slug: 'kinnow',
     name: 'Kinnow (Orange)',
     price: '1200',
-    imageUrl: 'https://picsum.photos/seed/orange-grove/400/400',
+    imageUrl: 'https://agrinutritionedge.com/wp-content/uploads/orange_grove_featured.png',
     imageHint: 'orange fruit',
     farmer: {
         uid: 'farmer-1',
